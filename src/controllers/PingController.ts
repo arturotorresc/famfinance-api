@@ -22,7 +22,8 @@ export default class PingController extends BaseController {
 
   /**
    * This method returns a Joi object specifying the valid params
-   * for the "ping" method.
+   * for the "ping" method. Return an empty Joi object if the
+   * request does not need any params.
    */
   protected pingParams() {
     return Joi.object({
