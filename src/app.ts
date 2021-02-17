@@ -28,23 +28,23 @@ export const main = async () => {
   app.use(cors(corsOptions));
   app.use(cookieParser());
 
-  // const dbOptions = {
-  //   useNewUrlParser: true,
-  //   useUnifiedTopology: true,
-  //   useCreateIndex: true,
-  //   useFindAndModify: false,
-  // };
-  // const uri = process.env.DB_URI as string | undefined;
-  // if (!uri) {
-  //   console.log("No database URI specified");
-  //   throw new Error(`No DB uri found!`);
-  // }
-  // try {
-  //   await mongoose.connect(uri, dbOptions);
-  // } catch (err) {
-  //   console.log("An error ocurred while connecting to the database!");
-  //   throw err;
-  // }
+  const dbOptions = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  };
+  const uri = process.env.DB_URI as string | undefined;
+  if (!uri) {
+    console.log("No database URI specified");
+    throw new Error(`No DB uri found!`);
+  }
+  try {
+    await mongoose.connect(uri, dbOptions);
+  } catch (err) {
+    console.log("An error ocurred while connecting to the database!");
+    throw err;
+  }
 
   // ================== ROUTES ================
   app.use("/api", pingRouter);
