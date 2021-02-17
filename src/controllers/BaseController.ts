@@ -33,7 +33,8 @@ export default abstract class BaseController {
     const requestHandlerMethod = (this as any)[this.action];
     if (!this.isValidAction(requestHandlerMethod)) {
       throw new Error(
-        `${this.action} is not a function of type () => Promise<void>!`
+        `${this.action} is not a function of type () => Promise<void>! Make sure the 'action' param
+        is set to an existen method!`
       );
     }
     if (!(await this.hasValidParams())) {
@@ -105,7 +106,7 @@ export default abstract class BaseController {
     try {
       await schema.validateAsync(params);
     } catch (err) {
-      console.log(`Invalid params for ${this.action}`);
+      console.log(`Invalid params for ${this.action} action!`);
       return false;
     }
     return true;
