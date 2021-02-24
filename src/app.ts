@@ -6,10 +6,12 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { pingRouter } from "./routes";
+import { usersRouter } from "./routes";
 
 export const main = async () => {
   const app = express();
   app.use(bodyParser.json());
+
   const originAllowlist = (process.env.CLIENT_ALLOWLIST as string).split(
     /,\s*/
   );
@@ -25,6 +27,7 @@ export const main = async () => {
     },
     credentials: true,
   };
+
   app.use(cors(corsOptions));
   app.use(cookieParser());
 
@@ -48,5 +51,6 @@ export const main = async () => {
 
   // ================== ROUTES ================
   app.use("/api", pingRouter);
+  app.use("/users", usersRouter);
   return app;
 };

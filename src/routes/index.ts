@@ -3,3 +3,4 @@
  */
 
 export { router as pingRouter } from "./ping.route";
+export { router as usersRouter } from "./users";
