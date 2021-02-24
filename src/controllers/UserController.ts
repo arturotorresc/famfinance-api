@@ -15,15 +15,16 @@ export default class UserController extends BaseController {
     if (params.password !== params.confirmPassword) {
       return this.notAcceptable("Passwords dont match!");
     }
-    const exists = await User.exists({ email: params.email });
+    const email = params.email.trim().toLowerCase();
+    const exists = await User.exists({ email });
     if (exists) {
       return this.badRequest("User already exists!");
     }
 
     const hashedPassword = await bcrypt.hash(params.password, 10);
     const user = new User({
-      name: params.name,
-      email: params.email,
+      name: params.name.trim(),
+      email,
       password: hashedPassword,
     });
     const savedUser = await user.save();
