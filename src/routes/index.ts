@@ -4,3 +4,4 @@
 
 export { router as pingRouter } from "./ping.route";
 export { router as userRouter } from "./user.route";
+export { router as endpointsRouter } from "./endpoints.route";
