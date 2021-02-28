@@ -7,3 +7,4 @@ export { router as userRouter } from "./user.route";
 export { router as policyRouter } from "./policy.route";
 export { router as familyRouter } from "./family.route";
 export { router as incomeRouter } from "./income.route";
+export { router as expenseRouter } from "./expense.route";

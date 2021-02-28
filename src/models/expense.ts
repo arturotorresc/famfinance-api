@@ -3,7 +3,7 @@ import mongodb from "mongodb";
 
 const { Schema } = mongoose;
 
-interface IIncomeDocument extends mongoose.Document {
+interface IExpenseDocument extends mongoose.Document {
   title: String,
   from: Date,
   until: Date,
@@ -11,7 +11,7 @@ interface IIncomeDocument extends mongoose.Document {
   belongsTo: mongodb.ObjectID
 }
 
-const incomeSchema = new Schema(
+const expenseSchema = new Schema(
   {
     title: {
         type: String,
@@ -40,6 +40,6 @@ const incomeSchema = new Schema(
   }
 );
 
-const Income = mongoose.model<IIncomeDocument>("Income", incomeSchema, "Income");
+const Expense = mongoose.model<IExpenseDocument>("Expense", expenseSchema, "Expense");
 
-export default Income;
+export default Expense;
