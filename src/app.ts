@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { endpointsRouter, pingRouter, userRouter } from "./routes";
+import { pingRouter, userRouter } from "./routes";
 
 export const main = async () => {
   const app = express();
@@ -49,6 +49,5 @@ export const main = async () => {
   // ================== ROUTES ================
   app.use("/api", pingRouter);
   app.use("/api", userRouter);
-  app.use("/api", endpointsRouter);
   return app;
 };

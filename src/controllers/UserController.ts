@@ -1,56 +1,42 @@
-import BaseController, { IArgs } from "./BaseController";
-import bcrypt from "bcrypt";
+import { NextFunction, Request, Response } from 'express';
+import mongoose from 'mongoose';
 import User from "../models/user";
-import Family from "../models/family";
-import Policy from "../models/policy";
-import Joi from "joi";
 
-interface IUserArgs extends IArgs {}
 
-export default class UserController extends BaseController {
-  constructor(args: IUserArgs) {
-    super(args);
-  }
+const createUser = (req: Request, res: Response, _: NextFunction) => {
+  let {name, email, password, role} = req.body;
 
-  protected async create() {
-    const params = this.getParams();
-    if (params.password !== params.confirmPassword) {
-      return this.notAcceptable("Passwords dont match!");
-    }
-    const email = params.email.trim().toLowerCase();
-    const exists = await User.exists({ email });
-    if (exists) {
-      return this.badRequest("User already exists!");
-    }
+  const user = new User({
+    _id: new mongoose.Types.ObjectId(),
+    name,
+    email,
+    password,
+    role
+  });
 
-    const hashedPassword = await bcrypt.hash(params.password, 10);
-    const user = new User({
-      name: params.name.trim(),
-      email,
-      password: hashedPassword,
-    });
-    const savedUser = await user.save();
+  return user
+    .save()
+    .then(result => {
+      return res.status(201).json({
+        user: result
+      })
+    })
+    .catch(error => {
+      console.log(error);
+    })
+};
 
-    const family = new Family({
-      admin: savedUser._id,
-    });
-    const savedFamily = await family.save();
+const getAllUsers = (_: Request, res: Response, __: NextFunction) => {
+  User.find({})
+  .exec()
+  .then(results => {
+    return res.status(200).json({
+      users: results
+    })
+  })
+  .catch(error => {
+    console.log(error);
+  })
+};
 
-    const policy = new Policy({
-      belongsTo: savedUser._id,
-    });
-    await policy.save();
-
-    console.log(`User ${savedUser.name} created!`);
-    this.ok({ user: savedUser, family: savedFamily });
-  }
-
-  protected createParams() {
-    return Joi.object({
-      name: Joi.string().required(),
-      email: Joi.string().required(),
-      password: Joi.string().required(),
-      confirmPassword: Joi.string().required(),
-    });
-  }
-}
+export default { getAllUsers, createUser };
