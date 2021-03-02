@@ -3,7 +3,13 @@ import FamilyController from "../controllers/FamilyController";
 
 const router = express.Router();
 
-router.post("/create/family", FamilyController.createFamily);
-router.get("/get/families", FamilyController.getAllFamilies);
+router.get("/get/families", async(req, res) => {
+    const controller = new FamilyController({
+      req,
+      res,
+      action: "read"
+    });
+    await controller.handleRequest();
+  });
 
 export { router };

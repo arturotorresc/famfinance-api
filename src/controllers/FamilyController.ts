@@ -1,39 +1,28 @@
-import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import BaseController, { IArgs } from "./BaseController";
 import Family from "../models/family";
+import Joi from "joi";
 
+interface IFamilyArgs extends IArgs {}
 
-const createFamily = (req: Request, res: Response) => {
-  let {admin} = req.body;
+export default class FamilyController extends BaseController {
+  constructor(args: IFamilyArgs) {
+    super(args);
+  }
 
-  const family = new Family({
-    _id: new mongoose.Types.ObjectId(),
-    admin
-  });
-
-  return family
-    .save()
-    .then(result => {
-      return res.status(201).json({
-        family: result
+  protected async read() {
+    Family.find({})
+    .exec()
+    .then(results => {
+      return this.res.status(200).json({
+        families: results
       })
     })
     .catch(error => {
       console.log(error);
     })
-};
+  }
 
-const getAllFamilies = (_: Request, res: Response) => {
-  Family.find({})
-  .exec()
-  .then(results => {
-    return res.status(200).json({
-      families: results
-    })
-  })
-  .catch(error => {
-    console.log(error);
-  })
-};
-
-export default { getAllFamilies, createFamily };
+  protected readParams() {
+    return Joi.object({});
+  }
+}

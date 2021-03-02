@@ -3,7 +3,13 @@ import PolicyController from "../controllers/PolicyController";
 
 const router = express.Router();
 
-router.post("/create/policy", PolicyController.createPolicy);
-router.get("/get/policies", PolicyController.getAllPolicies);
+router.get("/get/policies", async(req, res) => {
+    const controller = new PolicyController({
+      req,
+      res,
+      action: "read"
+    });
+    await controller.handleRequest();
+  });
 
 export { router };
