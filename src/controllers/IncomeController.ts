@@ -1,43 +1,53 @@
-import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import BaseController, { IArgs } from "./BaseController";
 import Income from "../models/income";
+import Joi from "joi";
 
+interface IIncomeArgs extends IArgs {}
 
-const createIncome = (req: Request, res: Response) => {
-  let {title, from, until, qty, belongsTo} = req.body;
+export default class IncomeController extends BaseController {
+  constructor(args: IIncomeArgs) {
+    super(args);
+  }
 
-  const income = new Income({
-    _id: new mongoose.Types.ObjectId(),
-    title,
-    from,
-    until,
-    qty,
-    belongsTo
-  });
+  protected async create() {
+    const params = this.getParams();
 
-  return income
-    .save()
-    .then(result => {
-      return res.status(201).json({
-        income: result
+    const income = new Income({
+      title: params.title.trim(),
+      from: params.from,
+      until: params.until,
+      qty: params.qty,
+      belongsTo: params.belongsTo
+    });
+    const savedIncome = await income.save();
+
+    this.ok({ income: savedIncome });
+  }
+
+  protected createParams() {
+    return Joi.object({
+      title: Joi.string().required(),
+      from: Joi.date(),
+      until: Joi.date(),
+      qty: Joi.number().required(),
+      belongsTo: Joi.string().required()
+    });
+  }
+
+  protected async read() {
+    Income.find({})
+    .exec()
+    .then(results => {
+      return this.res.status(200).json({
+        income: results
       })
     })
     .catch(error => {
       console.log(error);
     })
-};
+  }
 
-const getAllIncomes = (_: Request, res: Response) => {
-  Income.find({})
-  .exec()
-  .then(results => {
-    return res.status(200).json({
-      incomes: results
-    })
-  })
-  .catch(error => {
-    console.log(error);
-  })
-};
-
-export default { getAllIncomes, createIncome };
+  protected readParams() {
+    return Joi.object({});
+  }
+}
