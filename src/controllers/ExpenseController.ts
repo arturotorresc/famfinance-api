@@ -1,43 +1,53 @@
-import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import BaseController, { IArgs } from "./BaseController";
 import Expense from "../models/expense";
+import Joi from "joi";
 
+interface IExpenseArgs extends IArgs {}
 
-const createExpense = (req: Request, res: Response) => {
-  let {title, from, until, qty, belongsTo} = req.body;
+export default class ExpenseController extends BaseController {
+  constructor(args: IExpenseArgs) {
+    super(args);
+  }
 
-  const expense = new Expense({
-    _id: new mongoose.Types.ObjectId(),
-    title,
-    from,
-    until,
-    qty,
-    belongsTo
-  });
+  protected async create() {
+    const params = this.getParams();
 
-  return expense
-    .save()
-    .then(result => {
-      return res.status(201).json({
-        expense: result
+    const expense = new Expense({
+      title: params.title.trim(),
+      from: params.from,
+      until: params.until,
+      qty: params.qty,
+      belongsTo: params.belongsTo
+    });
+    const savedExpense = await expense.save();
+
+    this.ok({ expense: savedExpense });
+  }
+
+  protected createParams() {
+    return Joi.object({
+      title: Joi.string().required(),
+      from: Joi.date(),
+      until: Joi.date(),
+      qty: Joi.number().required(),
+      belongsTo: Joi.string().required()
+    });
+  }
+
+  protected async read() {
+    Expense.find({})
+    .exec()
+    .then(results => {
+      return this.res.status(200).json({
+        expense: results
       })
     })
     .catch(error => {
       console.log(error);
     })
-};
+  }
 
-const getAllExpenses = (_: Request, res: Response) => {
-  Expense.find({})
-  .exec()
-  .then(results => {
-    return res.status(200).json({
-      expenses: results
-    })
-  })
-  .catch(error => {
-    console.log(error);
-  })
-};
-
-export default { getAllExpenses, createExpense };
+  protected readParams() {
+    return Joi.object({});
+  }
+}
