@@ -1,6 +1,6 @@
 import BaseController, { IArgs } from "./BaseController";
 import bcrypt from "bcrypt";
-import User from "../models/user";
+import User, { UserRoleEnum } from "../models/user";
 import Family from "../models/family";
 import Policy from "../models/policy";
 import Joi from "joi";
@@ -20,11 +20,14 @@ export default class UserController extends BaseController {
       return this.badRequest("User already exists!");
     }
 
-    const { savedUser } = await this.saveUserWithPolicy({
-      name: params.name,
-      email,
-      password: params.password,
-    });
+    const { savedUser } = await this.saveUserWithPolicy(
+      {
+        name: params.name,
+        email,
+        password: params.password,
+      },
+      UserRoleEnum.ADMIN
+    );
     const family = new Family({
       admin: savedUser._id,
     });
@@ -47,11 +50,14 @@ export default class UserController extends BaseController {
       return this.notFound("Family not found!");
     }
 
-    const { savedUser } = await this.saveUserWithPolicy({
-      name: params.name,
-      email,
-      password: params.password,
-    });
+    const { savedUser } = await this.saveUserWithPolicy(
+      {
+        name: params.name,
+        email,
+        password: params.password,
+      },
+      UserRoleEnum.MEMBER
+    );
     family.members.push(savedUser._id);
     const updatedFamily = await family.save();
     console.log(`Added ${savedUser.name} to family ${updatedFamily.familyId}!`);
@@ -76,20 +82,24 @@ export default class UserController extends BaseController {
     });
   }
 
-  private async saveUserWithPolicy({
-    name,
-    email,
-    password,
-  }: {
-    name: string;
-    email: string;
-    password: string;
-  }) {
+  private async saveUserWithPolicy(
+    {
+      name,
+      email,
+      password,
+    }: {
+      name: string;
+      email: string;
+      password: string;
+    },
+    role: UserRoleEnum
+  ) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
       name: name.trim(),
       email,
       password: hashedPassword,
+      role: role,
     });
     const savedUser = await user.save();
     const policy = new Policy({
