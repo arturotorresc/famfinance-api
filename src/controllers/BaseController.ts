@@ -58,8 +58,13 @@ export default abstract class BaseController {
   protected ok(data: any, msg: string = "Success") {
     this.sendResponse(200, data, msg);
   }
+
   protected notAcceptable(msg: string = "Not acceptable") {
     this.sendResponse(406, {}, msg);
+  }
+
+  protected notFound(msg: string = "Resource not found") {
+    this.sendResponse(404, {}, msg);
   }
 
   protected badRequest(msg: string = "Bad request") {

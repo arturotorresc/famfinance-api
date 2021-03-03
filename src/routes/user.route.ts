@@ -3,7 +3,7 @@ import UserController from "../controllers/UserController";
 
 const router = express.Router();
 
-router.post(`/create/user`, async (req, res) => {
+router.post("/users", async (req, res) => {
   const controller = new UserController({
     req,
     res,
@@ -12,11 +12,20 @@ router.post(`/create/user`, async (req, res) => {
   await controller.handleRequest();
 });
 
-router.get("/get/users", async(req, res) => {
+router.get("/users", async (req, res) => {
   const controller = new UserController({
     req,
     res,
-    action: "read"
+    action: "read",
+  });
+  await controller.handleRequest();
+});
+
+router.post("/users/family/:familyId", async (req, res) => {
+  const controller = new UserController({
+    req,
+    res,
+    action: "createMember",
   });
   await controller.handleRequest();
 });
