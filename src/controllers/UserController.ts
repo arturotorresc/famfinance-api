@@ -108,4 +108,21 @@ export default class UserController extends BaseController {
     await policy.save();
     return { savedUser };
   }
+
+  protected async read() {
+    User.find({})
+      .exec()
+      .then((results) => {
+        return this.res.status(200).json({
+          users: results,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  protected readParams() {
+    return Joi.object({});
+  }
 }

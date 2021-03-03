@@ -37,6 +37,6 @@ const familySchema = new Schema(
   }
 );
 
-const Family = mongoose.model<IFamilyDocument>("Family", familySchema);
+const Family = mongoose.model<IFamilyDocument>("Family", familySchema, "Family");
 
 export default Family;
