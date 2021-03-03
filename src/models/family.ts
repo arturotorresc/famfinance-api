@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import mongodb from "mongodb";
+import shortid from "shortid";
 
 const { Schema } = mongoose;
 
@@ -8,6 +9,7 @@ const { Schema } = mongoose;
  */
 interface IFamilyDocument extends mongoose.Document {
   admin: mongodb.ObjectID;
+  familyId: string;
 }
 
 const familySchema = new Schema(
@@ -16,6 +18,10 @@ const familySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    familyId: {
+      type: String,
+      default: shortid.generate,
     },
   },
   {

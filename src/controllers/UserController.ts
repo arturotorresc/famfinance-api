@@ -14,9 +14,6 @@ export default class UserController extends BaseController {
 
   protected async create() {
     const params = this.getParams();
-    if (params.password !== params.confirmPassword) {
-      return this.notAcceptable("Passwords dont match!");
-    }
     const email = params.email.trim().toLowerCase();
     const exists = await User.exists({ email });
     if (exists) {
@@ -50,7 +47,7 @@ export default class UserController extends BaseController {
       name: Joi.string().required(),
       email: Joi.string().required(),
       password: Joi.string().required(),
-      confirmPassword: Joi.string().required(),
+      confirmPassword: Joi.any().valid(Joi.ref("password")).required(),
     });
   }
 }
