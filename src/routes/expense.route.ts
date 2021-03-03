@@ -3,7 +3,7 @@ import ExpenseController from "../controllers/ExpenseController";
 
 const router = express.Router();
 
-router.post(`/create/expense`, async (req, res) => {
+router.post(`/expense`, async (req, res) => {
     const controller = new ExpenseController({
       req,
       res,
@@ -12,7 +12,7 @@ router.post(`/create/expense`, async (req, res) => {
     await controller.handleRequest();
   });
   
-  router.get("/get/expenses", async(req, res) => {
+  router.get("/expense", async(req, res) => {
     const controller = new ExpenseController({
       req,
       res,

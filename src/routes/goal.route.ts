@@ -3,7 +3,7 @@ import GoalController from "../controllers/GoalController";
 
 const router = express.Router();
 
-router.post(`/create/goal`, async (req, res) => {
+router.post(`/goal`, async (req, res) => {
     const controller = new GoalController({
       req,
       res,
@@ -12,7 +12,7 @@ router.post(`/create/goal`, async (req, res) => {
     await controller.handleRequest();
   });
   
-  router.get("/get/goals", async(req, res) => {
+  router.get("/goal", async(req, res) => {
     const controller = new GoalController({
       req,
       res,

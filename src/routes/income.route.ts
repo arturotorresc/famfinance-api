@@ -3,7 +3,7 @@ import IncomeController from "../controllers/IncomeController";
 
 const router = express.Router();
 
-router.post(`/create/income`, async (req, res) => {
+router.post(`/income`, async (req, res) => {
     const controller = new IncomeController({
       req,
       res,
@@ -12,7 +12,7 @@ router.post(`/create/income`, async (req, res) => {
     await controller.handleRequest();
   });
   
-  router.get("/get/incomes", async(req, res) => {
+  router.get("/income", async(req, res) => {
     const controller = new IncomeController({
       req,
       res,
