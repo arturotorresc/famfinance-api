@@ -10,6 +10,7 @@ const { Schema } = mongoose;
 interface IFamilyDocument extends mongoose.Document {
   admin: mongodb.ObjectID;
   familyId: string;
+  members: mongodb.ObjectID[];
 }
 
 const familySchema = new Schema(
@@ -23,6 +24,13 @@ const familySchema = new Schema(
       type: String,
       default: shortid.generate,
     },
+    members: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        default: [],
+      },
+    ],
   },
   {
     timestamps: true,
