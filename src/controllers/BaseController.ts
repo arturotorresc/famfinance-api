@@ -1,4 +1,5 @@
 import express from "express";
+import { CurrentUser } from "../lib/CurrentUser";
 import Joi from "joi";
 
 export type THttpMethod = "GET" | "POST" | "PUT" | "DELETE";
@@ -21,11 +22,14 @@ export default abstract class BaseController {
   protected readonly req: express.Request;
   protected readonly res: express.Response;
   protected readonly action: string;
+  protected readonly cu: CurrentUser;
   private hasSentResponse: boolean;
+
   constructor({ req, res, action }: IArgs) {
     this.req = req;
     this.res = res;
     this.action = action;
+    this.cu = new CurrentUser(req);
     this.hasSentResponse = false;
   }
 

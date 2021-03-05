@@ -11,16 +11,15 @@ export default class IncomeController extends BaseController {
 
   protected async create() {
     const params = this.getParams();
-
+    const user = this.cu.getUser();
     const income = new Income({
       title: params.title.trim(),
       from: params.from,
       until: params.until,
       qty: params.qty,
-      belongsTo: params.belongsTo
+      belongsTo: user!._id,
     });
     const savedIncome = await income.save();
-
     this.ok({ income: savedIncome });
   }
 
@@ -30,21 +29,20 @@ export default class IncomeController extends BaseController {
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().required(),
-      belongsTo: Joi.string().required()
     });
   }
 
   protected async read() {
     Income.find({})
-    .exec()
-    .then(results => {
-      return this.res.status(200).json({
-        income: results
+      .exec()
+      .then((results) => {
+        return this.res.status(200).json({
+          income: results,
+        });
       })
-    })
-    .catch(error => {
-      console.log(error);
-    })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   protected readParams() {

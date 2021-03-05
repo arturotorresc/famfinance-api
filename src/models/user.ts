@@ -9,7 +9,7 @@ export enum UserRoleEnum {
 /**
  * The available properties in the user model
  */
-interface IUserDocument extends mongoose.Document {
+export interface IUserDocument extends mongoose.Document {
   name: string;
   email: string;
   password: string;
@@ -39,7 +39,7 @@ const userSchema = new Schema(
   },
   {
     collection: "User",
-    timestamps: true
+    timestamps: true,
   }
 );
 
