@@ -23,6 +23,6 @@ const policySchema = new Schema(
   }
 );
 
-const Policy = mongoose.model<IPolicyDocument>("Policy", policySchema);
+const Policy = mongoose.model<IPolicyDocument>("Policy", policySchema, "Policy");
 
 export default Policy;
