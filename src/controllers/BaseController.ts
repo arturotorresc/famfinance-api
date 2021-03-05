@@ -63,6 +63,16 @@ export default abstract class BaseController {
     this.sendResponse(406, {}, msg);
   }
 
+  protected redirect(url: string) {
+    if (this.hasSentResponse) {
+      throw new Error(
+        "A response has already been sent and a redirect was tried!"
+      );
+    }
+    this.hasSentResponse = true;
+    this.res.redirect(url);
+  }
+
   protected notFound(msg: string = "Resource not found") {
     this.sendResponse(404, {}, msg);
   }
