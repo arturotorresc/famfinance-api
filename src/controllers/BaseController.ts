@@ -81,6 +81,10 @@ export default abstract class BaseController {
     this.sendResponse(404, {}, msg);
   }
 
+  protected notAuthorized(msg: string = "Not authorized") {
+    this.sendResponse(401, {}, msg);
+  }
+
   protected badRequest(msg: string = "Bad request") {
     this.sendResponse(401, {}, msg);
   }
