@@ -4,6 +4,7 @@ import User from "../models/user";
 import Family from "../models/family";
 import Policy from "../models/policy";
 import Joi from "joi";
+const passport = require("passport");
 
 interface IUserArgs extends IArgs {}
 
@@ -45,12 +46,33 @@ export default class UserController extends BaseController {
     this.ok({ user: savedUser, family: savedFamily });
   }
 
+  protected async login() {
+    let parent = this;
+
+    passport.authenticate("local", (error: any, user:any, info:any) => {
+      if(error || info) {
+        parent.res.redirect("login");
+      }
+
+      if(user) {
+        parent.res.redirect("main");
+      }
+    })(parent.req, parent.res);
+  }
+
   protected createParams() {
     return Joi.object({
       name: Joi.string().required(),
       email: Joi.string().required(),
       password: Joi.string().required(),
       confirmPassword: Joi.string().required(),
+    });
+  }
+
+  protected loginParams() {
+    return Joi.object({
+      email: Joi.string().required(),
+      password: Joi.string().required(),
     });
   }
 }

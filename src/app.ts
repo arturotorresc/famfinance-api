@@ -4,12 +4,18 @@ import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+let passport = require("passport");
+let session = require("express-session");
+let setStrategy = require("./passportStrategy").default;
 import cors from "cors";
 import { pingRouter, userRouter } from "./routes";
 
 export const main = async () => {
   const app = express();
   app.use(bodyParser.json());
+  app.use(session({secret: "secret"}));
+  setStrategy(passport);
+
   const originAllowlist = (process.env.CLIENT_ALLOWLIST as string).split(
     /,\s*/
   );
@@ -27,7 +33,8 @@ export const main = async () => {
   };
   app.use(cors(corsOptions));
   app.use(cookieParser());
-
+  app.use(passport.initialize());
+  app.use(passport.session());
   const dbOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
