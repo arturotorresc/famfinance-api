@@ -3,11 +3,11 @@ import SessionController from "../controllers/SessionController";
 
 const router = express.Router();
 
-router.get(`/auth-check`, async (req, res) => {
+router.get(`/me`, async (req, res) => {
   const controller = new SessionController({
     req,
     res,
-    action: "authCheck",
+    action: "me",
   });
   await controller.handleRequest();
 });

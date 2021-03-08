@@ -8,11 +8,11 @@ export default class SessionController extends BaseController {
     super(args);
   }
 
-  protected async authCheck() {
-    this.ok({ isLoggedIn: this.cu.isLoggedIn() });
+  protected async me() {
+    this.ok({ user: this.cu.getUser() });
   }
 
-  protected authCheckParams() {
+  protected meParams() {
     return Joi.object({});
   }
 }
