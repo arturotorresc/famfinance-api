@@ -4,7 +4,7 @@ import User, { UserRoleEnum } from "../models/user";
 import Family from "../models/family";
 import Policy from "../models/policy";
 import Joi from "joi";
-const passport = require("passport");
+import passport from "passport";
 
 interface IUserArgs extends IArgs {}
 
