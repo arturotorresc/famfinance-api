@@ -12,7 +12,16 @@ export default class SessionController extends BaseController {
     this.ok({ user: this.cu.getUser() });
   }
 
+  protected async logout() {
+    this.req.logout();
+    this.redirect("/login");
+  }
+
   protected meParams() {
+    return Joi.object({});
+  }
+
+  protected logoutParams() {
     return Joi.object({});
   }
 }
