@@ -130,7 +130,7 @@ export default class UserController extends BaseController {
   protected async login() {
     passport.authenticate("local", (error: any, user: any, info: any) => {
       if (error || info) {
-        this.redirect("/login");
+        return this.redirect("/login");
       }
 
       if (user) {
