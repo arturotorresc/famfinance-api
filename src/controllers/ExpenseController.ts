@@ -14,10 +14,14 @@ export default class ExpenseController extends BaseController {
 
     const user = this.cu.getUser();
     if (!user) {
+      console.log("not authorized")
       return this.notAuthorized();
+    } else {
+      console.log(user)
     }
     const expense = new Expense({
       title: params.title.trim(),
+      category: params.category.trim(),
       from: params.from,
       until: params.until,
       qty: params.qty,
@@ -31,6 +35,7 @@ export default class ExpenseController extends BaseController {
   protected createParams() {
     return Joi.object({
       title: Joi.string().required(),
+      category: Joi.string(),
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().required(),
