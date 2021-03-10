@@ -36,6 +36,10 @@ export default class GoalController extends BaseController {
 
   protected async read() {
     const user = this.cu.getUser();
+    if(user === null) {
+      return this.notAuthorized();
+    }
+
     Goal.find({belongsTo: user.id})
     .exec()
     .then(results => {

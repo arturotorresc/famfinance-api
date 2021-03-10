@@ -34,6 +34,11 @@ export default class IncomeController extends BaseController {
 
   protected async read() {
     const user = this.cu.getUser();
+
+    if(user === null) {
+      return this.notAuthorized();
+    }
+    
     Income.find({belongsTo: user.id})
       .exec()
       .then((results) => {
