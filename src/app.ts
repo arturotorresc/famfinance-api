@@ -20,10 +20,6 @@ import {
 
 export const main = async () => {
   const app = express();
-  app.use(bodyParser.json());
-  app.use(session({ secret: "secret" }));
-  setStrategy(passport);
-
   const originAllowlist = (process.env.CLIENT_ALLOWLIST as string).split(
     /,\s*/
   );
@@ -40,7 +36,11 @@ export const main = async () => {
     credentials: true,
   };
   app.use(cors(corsOptions));
+
+  app.use(bodyParser.json());
   app.use(cookieParser());
+  app.use(session({ secret: process.env.SESSION_SECRET || "secret" }));
+  setStrategy(passport);
   app.use(passport.initialize());
   app.use(passport.session());
   const dbOptions = {
