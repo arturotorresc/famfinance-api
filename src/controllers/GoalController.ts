@@ -35,7 +35,8 @@ export default class GoalController extends BaseController {
   }
 
   protected async read() {
-    Goal.find({})
+    const user = this.cu.getUser();
+    Goal.find({belongsTo: user.id})
     .exec()
     .then(results => {
       return this.res.status(200).json({

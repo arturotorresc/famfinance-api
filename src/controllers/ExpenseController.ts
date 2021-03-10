@@ -11,13 +11,9 @@ export default class ExpenseController extends BaseController {
 
   protected async create() {
     const params = this.getParams();
-
     const user = this.cu.getUser();
     if (!user) {
-      console.log("not authorized")
       return this.notAuthorized();
-    } else {
-      console.log(user)
     }
     const expense = new Expense({
       title: params.title.trim(),
@@ -44,7 +40,8 @@ export default class ExpenseController extends BaseController {
   }
 
   protected async read() {
-    Expense.find({})
+    const user = this.cu.getUser();
+    Expense.find({ belongsTo: user.id})
       .exec()
       .then((results) => {
         return this.res.status(200).json({

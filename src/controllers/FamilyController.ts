@@ -10,7 +10,8 @@ export default class FamilyController extends BaseController {
   }
 
   protected async read() {
-    Family.find({})
+    const user = this.cu.getUser();
+    Family.find({admin: user.id})
     .exec()
     .then(results => {
       return this.res.status(200).json({
