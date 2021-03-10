@@ -41,6 +41,10 @@ export default class ExpenseController extends BaseController {
 
   protected async read() {
     const user = this.cu.getUser();
+    if(user === null) {
+      return this.notAuthorized();
+    }
+
     Expense.find({ belongsTo: user.id})
       .exec()
       .then((results) => {
