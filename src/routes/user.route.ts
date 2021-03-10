@@ -20,4 +20,13 @@ router.post(`/users`, async (req, res) => {
   await controller.handleRequest();
 });
 
+router.post(`/members`, async (req, res) => {
+  const controller = new UserController({
+    req,
+    res,
+    action: "createMember",
+  });
+  await controller.handleRequest();
+});
+
 export { router };

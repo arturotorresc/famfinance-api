@@ -80,6 +80,7 @@ export default class UserController extends BaseController {
       email: Joi.string().email().required(),
       password: Joi.string().required(),
       confirmPassword: Joi.any().valid(Joi.ref("password")).required(),
+      familyId: Joi.string().required(),
     });
   }
 
@@ -130,15 +131,15 @@ export default class UserController extends BaseController {
   protected async login() {
     passport.authenticate("local", (error: any, user: any, info: any) => {
       if (error || info) {
-        this.redirect("/login");
+        return this.res.redirect("/");
       }
 
       if (user) {
         this.req.login(user, (err) => {
           if (err) {
-            return this.redirect("/login");
+            return this.res.redirect("/register");
           }
-          this.redirect("/");
+          return this.res.redirect("/");
         });
       }
     })(this.req, this.res);
