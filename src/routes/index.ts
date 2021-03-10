@@ -8,3 +8,4 @@ export { router as familyRouter } from "./family.route";
 export { router as incomeRouter } from "./income.route";
 export { router as expenseRouter } from "./expense.route";
 export { router as goalRouter } from "./goal.route";
+export { router as sessionRouter } from "./session.route";

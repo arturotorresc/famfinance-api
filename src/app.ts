@@ -15,12 +15,13 @@ import {
   incomeRouter,
   expenseRouter,
   goalRouter,
+  sessionRouter,
 } from "./routes";
 
 export const main = async () => {
   const app = express();
   app.use(bodyParser.json());
-  app.use(session({secret: "secret"}));
+  app.use(session({ secret: "secret" }));
   setStrategy(passport);
 
   const originAllowlist = (process.env.CLIENT_ALLOWLIST as string).split(
@@ -67,6 +68,7 @@ export const main = async () => {
   app.use("/api", incomeRouter);
   app.use("/api", expenseRouter);
   app.use("/api", goalRouter);
+  app.use("/api", sessionRouter);
 
   return app;
 };

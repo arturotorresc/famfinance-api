@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 
 interface IExpenseDocument extends mongoose.Document {
   title: String,
+  category: String,
   from: Date,
   until: Date,
   qty: Number,
@@ -16,6 +17,10 @@ const expenseSchema = new Schema(
     title: {
         type: String,
         required: true,
+    },
+    category: {
+       type: String,
+       required: false,
     },
     from: {
         type: Date,
