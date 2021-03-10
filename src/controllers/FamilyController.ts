@@ -11,16 +11,19 @@ export default class FamilyController extends BaseController {
 
   protected async read() {
     const user = this.cu.getUser();
-    Family.find({admin: user.id})
-    .exec()
-    .then(results => {
-      return this.res.status(200).json({
-        families: results
+    if (user === null) {
+      return this.notAuthorized();
+    }
+    Family.find({ admin: user.id })
+      .exec()
+      .then((results) => {
+        return this.res.status(200).json({
+          families: results,
+        });
       })
-    })
-    .catch(error => {
-      console.log(error);
-    })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   protected readParams() {
