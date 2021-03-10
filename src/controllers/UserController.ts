@@ -133,6 +133,7 @@ export default class UserController extends BaseController {
         return this.redirect("/login");
       }
 
+      console.log(info);
       if (user) {
         this.req.login(user, (err) => {
           if (err) {
