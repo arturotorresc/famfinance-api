@@ -6,7 +6,7 @@ const router = express.Router();
 router.post(`/ping`, async (req, res) => {
   /*
   The action param specifies the method that will handle
-  this request. Note that you also have to create a 
+  this request. Note that you also have to create a
   pingParams method that returns a Joi.schema to validate
   the params.
   */
