@@ -129,20 +129,18 @@ export default class UserController extends BaseController {
   }
 
   protected async login() {
-    const clientHostUrl = process.env.CLIENT_BASE_URL as string;
     passport.authenticate("local", (error: any, user: any, info: any) => {
       if (error || info) {
-        return this.redirect(`${clientHostUrl}/`);
+        return this.notAuthorized();
       }
 
       if (user) {
         this.req.login(user, (err) => {
           if (err) {
-            return this.redirect(`${clientHostUrl}/`);
+            return this.notAuthorized();
           }
           console.log(`User ${user.name} logged in!`);
-          // return this.ok({ user: user });
-          return this.redirect(`${clientHostUrl}/dashboard`);
+          return this.ok({ user });
         });
       }
     })(this.req, this.res);
