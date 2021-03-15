@@ -13,7 +13,7 @@ interface IFrequencyDocument extends mongoose.Document {
   weeks: [Boolean];
   repetition: FrequencyEnum;
   repeatsEvery: Number;
-  belongsTo: mongodb.ObjectID;
+  frequency: mongodb.ObjectID;
 }
 
 const frequencySchema = new Schema(
