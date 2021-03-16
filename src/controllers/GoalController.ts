@@ -11,13 +11,13 @@ export default class GoalController extends BaseController {
 
   protected async create() {
     const params = this.getParams();
-
+    const user = this.cu.getUser();
     const goal = new Goal({
       title: params.title.trim(),
       description: params.description,
       deadline: params.deadline,
       qty: params.qty,
-      belongsTo: params.belongsTo
+      belongsTo: user!._id
     });
     const savedGoal = await goal.save();
 
@@ -29,8 +29,7 @@ export default class GoalController extends BaseController {
       title: Joi.string().required(),
       description: Joi.string().required(),
       deadline: Joi.date().required(),
-      qty: Joi.number().required(),
-      belongsTo: Joi.string().required()
+      qty: Joi.number().required()
     });
   }
 
