@@ -59,4 +59,19 @@ export default class ExpenseController extends BaseController {
   protected readParams() {
     return Joi.object({});
   }
+
+  private async destroy() {
+    const id = this.req.params.id;
+    const expense = await Expense.findOneAndDelete({ _id: id });
+    if (expense) {
+      console.log(`Expense ${expense._id} deleted.`);
+    } else {
+      console.log(`No Expense with that ID`);
+    }
+    this.ok({ expense });
+  }
+
+  private destroyParams() {
+    return Joi.object({});
+  }
 }

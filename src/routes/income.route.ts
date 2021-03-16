@@ -22,4 +22,13 @@ router.get("/income", isAuthenticated(), async (req, res) => {
   await controller.handleRequest();
 });
 
+router.delete("/income/:id", isAuthenticated(), async (req, res) => {
+  const controller = new IncomeController({
+    req,
+    res,
+    action: "destroy",
+  });
+  await controller.handleRequest();
+});
+
 export { router };

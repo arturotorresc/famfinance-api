@@ -56,4 +56,19 @@ export default class IncomeController extends BaseController {
   protected readParams() {
     return Joi.object({});
   }
+
+  private async destroy() {
+    const id = this.req.params.id;
+    const income = await Income.findOneAndDelete({ _id: id });
+    if (income) {
+      console.log(`Income ${income._id} deleted.`);
+    } else {
+      console.log(`No Income with that ID`);
+    }
+    this.ok({ income });
+  }
+
+  private destroyParams() {
+    return Joi.object({});
+  }
 }
