@@ -4,34 +4,39 @@ import mongodb from "mongodb";
 const { Schema } = mongoose;
 
 interface IIncomeDocument extends mongoose.Document {
-  title: String,
-  from: Date,
-  until: Date,
-  qty: Number,
-  belongsTo: mongodb.ObjectID
+  title: String;
+  category: String;
+  from: Date;
+  until: Date;
+  qty: Number;
+  belongsTo: mongodb.ObjectID;
 }
 
 const incomeSchema = new Schema(
   {
     title: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     from: {
-        type: Date,
-        required: false
+      type: Date,
+      required: false,
     },
     until: {
-        type: Date,
-        required: false
+      type: Date,
+      required: false,
     },
     qty: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     belongsTo: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    category: {
+      type: String,
       required: true,
     },
   },
@@ -40,6 +45,10 @@ const incomeSchema = new Schema(
   }
 );
 
-const Income = mongoose.model<IIncomeDocument>("Income", incomeSchema, "Income");
+const Income = mongoose.model<IIncomeDocument>(
+  "Income",
+  incomeSchema,
+  "Income"
+);
 
 export default Income;

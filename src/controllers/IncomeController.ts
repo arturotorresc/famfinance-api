@@ -12,11 +12,13 @@ export default class IncomeController extends BaseController {
   protected async create() {
     const params = this.getParams();
     const user = this.cu.getUser();
+    const category = (params.category as string).trim().toLowerCase();
     const income = new Income({
       title: params.title.trim(),
       from: params.from,
       until: params.until,
       qty: params.qty,
+      category,
       belongsTo: user!._id,
     });
     const savedIncome = await income.save();
@@ -29,16 +31,17 @@ export default class IncomeController extends BaseController {
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().required(),
+      category: Joi.string().required(),
     });
   }
 
   protected async read() {
     const user = this.cu.getUser();
-    if(user === null) {
+    if (user === null) {
       return this.notAuthorized();
     }
 
-    Income.find({belongsTo: user.id})
+    Income.find({ belongsTo: user.id })
       .exec()
       .then((results) => {
         return this.res.status(200).json({

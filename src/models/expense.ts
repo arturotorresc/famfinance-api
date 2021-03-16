@@ -4,35 +4,35 @@ import mongodb from "mongodb";
 const { Schema } = mongoose;
 
 interface IExpenseDocument extends mongoose.Document {
-  title: String,
-  category: String,
-  from: Date,
-  until: Date,
-  qty: Number,
-  belongsTo: mongodb.ObjectID
+  title: String;
+  category: String;
+  from: Date;
+  until: Date;
+  qty: Number;
+  belongsTo: mongodb.ObjectID;
 }
 
 const expenseSchema = new Schema(
   {
     title: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     category: {
-       type: String,
-       required: false,
+      type: String,
+      required: false,
     },
     from: {
-        type: Date,
-        required: false
+      type: Date,
+      required: false,
     },
     until: {
-        type: Date,
-        required: false
+      type: Date,
+      required: false,
     },
     qty: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     belongsTo: {
       type: Schema.Types.ObjectId,
@@ -45,6 +45,10 @@ const expenseSchema = new Schema(
   }
 );
 
-const Expense = mongoose.model<IExpenseDocument>("Expense", expenseSchema, "Expense");
+const Expense = mongoose.model<IExpenseDocument>(
+  "Expense",
+  expenseSchema,
+  "Expense"
+);
 
 export default Expense;

@@ -31,21 +31,20 @@ export default class ExpenseController extends BaseController {
   protected createParams() {
     return Joi.object({
       title: Joi.string().required(),
-      category: Joi.string(),
+      category: Joi.string().required(),
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().required(),
-      belongsTo: Joi.string().required(),
     });
   }
 
   protected async read() {
     const user = this.cu.getUser();
-    if(user === null) {
+    if (user === null) {
       return this.notAuthorized();
     }
 
-    Expense.find({ belongsTo: user.id})
+    Expense.find({ belongsTo: user.id })
       .exec()
       .then((results) => {
         return this.res.status(200).json({
