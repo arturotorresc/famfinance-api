@@ -41,7 +41,14 @@ export default class IncomeController extends BaseController {
       return this.notAuthorized();
     }
 
-    Income.find({ belongsTo: user.id })
+    const params = this.getParams();
+    let query: any = {
+      belongsTo: user.id,
+    };
+    if (params.id) {
+      query = { ...query, _id: params.id };
+    }
+    Income.find(query)
       .exec()
       .then((results) => {
         return this.res.status(200).json({
@@ -54,7 +61,9 @@ export default class IncomeController extends BaseController {
   }
 
   protected readParams() {
-    return Joi.object({});
+    return Joi.object({
+      id: Joi.string().optional(),
+    });
   }
 
   private async destroy() {
