@@ -45,11 +45,22 @@ export default class ExpenseController extends BaseController {
     }
 
     const params = this.getParams();
+    const family = await this.cu.getFamily();
+    if (!family) {
+      console.log("No family was found for this user!");
+      return this.notFound();
+    }
+    const belongsToArray = family.members.map((userId) => {
+      return {
+        belongsTo: userId,
+      };
+    });
+    belongsToArray.push({ belongsTo: family.admin });
     let query: any = {
-      belongsTo: user.id,
+      $or: belongsToArray,
     };
     if (params.id) {
-      query = { ...query, _id: params.id };
+      query = { $and: [{ _id: params.id }, { $or: belongsToArray }] };
     }
     Expense.find(query)
       .exec()
