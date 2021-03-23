@@ -1,5 +1,6 @@
 import BaseController, { IArgs } from "./BaseController";
 import Expense from "../models/expense";
+import { AllowedActionsEnum } from "../models/policy";
 import Joi from "joi";
 
 interface IExpenseArgs extends IArgs {}
@@ -82,6 +83,12 @@ export default class ExpenseController extends BaseController {
 
   private async destroy() {
     const id = this.req.params.id;
+    const hasPermission = await this.cu.hasPermission(
+      AllowedActionsEnum.DELETE_FAMILY_EXPENSE
+    );
+    if (!hasPermission) {
+      return this.notAuthorized("You are not authorized to delete an expense");
+    }
     const expense = await Expense.findOneAndDelete({ _id: id });
     if (expense) {
       console.log(`Expense ${expense._id} deleted.`);

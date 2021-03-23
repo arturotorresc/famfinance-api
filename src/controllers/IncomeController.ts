@@ -1,5 +1,6 @@
 import BaseController, { IArgs } from "./BaseController";
 import Income from "../models/income";
+import { AllowedActionsEnum } from "../models/policy";
 import Joi from "joi";
 
 interface IIncomeArgs extends IArgs {}
@@ -79,6 +80,12 @@ export default class IncomeController extends BaseController {
 
   private async destroy() {
     const id = this.req.params.id;
+    const hasPermission = await this.cu.hasPermission(
+      AllowedActionsEnum.DELETE_FAMILY_INCOME
+    );
+    if (!hasPermission) {
+      return this.notAuthorized("You are not allowed to delete incomes");
+    }
     const income = await Income.findOneAndDelete({ _id: id });
     if (income) {
       console.log(`Income ${income._id} deleted.`);
