@@ -13,7 +13,7 @@ export default class GoalController extends BaseController {
     const params = this.getParams();
     const user = this.cu.getUser();
 
-    if (user === null) {
+    if (!user) {
       return this.notAuthorized();
     }
 
