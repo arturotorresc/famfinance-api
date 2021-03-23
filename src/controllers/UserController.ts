@@ -44,7 +44,7 @@ export default class UserController extends BaseController {
     if (exists) {
       return this.badRequest("User already exists!");
     }
-    const familyId = this.req.params.familyId;
+    const familyId = params.familyId;
     const family = await Family.findOne({ familyId: familyId });
     if (!family) {
       console.log(`Family with id "${familyId}" does not exist!`);

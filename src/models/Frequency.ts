@@ -4,7 +4,7 @@ import mongodb from "mongodb";
 const { Schema } = mongoose;
 
 export enum FrequencyEnum {
-  MONTHLY= "MONTHLY",
+  MONTHLY = "MONTHLY",
   WEEKLY = "WEEKLY",
 }
 
@@ -19,8 +19,8 @@ interface IFrequencyDocument extends mongoose.Document {
 const frequencySchema = new Schema(
   {
     weekDays: {
-        type: [Boolean],
-        required: false,
+      type: [Boolean],
+      required: false,
     },
     weeks: {
       type: [Boolean],
@@ -46,6 +46,10 @@ const frequencySchema = new Schema(
   }
 );
 
-const Frequency = mongoose.model<IIncomeDocument>("Frequency", frequencySchema, "Frequency");
+const Frequency = mongoose.model<IFrequencyDocument>(
+  "Frequency",
+  frequencySchema,
+  "Frequency"
+);
 
 export default Frequency;
