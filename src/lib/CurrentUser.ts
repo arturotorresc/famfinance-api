@@ -1,5 +1,8 @@
-import { IUserDocument } from "../models/user";
+import { IUserDocument, UserRoleEnum } from "../models/user";
 import { Request } from "express";
+import { AllowedActionsEnum } from "../models/policy";
+import Family from "../models/family";
+import Policy from "../models/policy";
 
 export class CurrentUser {
   private user: IUserDocument | null;
@@ -20,9 +23,46 @@ export class CurrentUser {
   }
 
   /**
+   * Gets the current user's Family. Returns null if the user is not logged in.
+   */
+  async getFamily() {
+    if (!this.isLoggedIn()) {
+      return null;
+    }
+    const user = this.user!;
+    const family = await Family.findOne({
+      $or: [{ admin: user._id }, { members: user._id }],
+    });
+    return family;
+  }
+
+  /**
    * Returns true if the user making the request is logged in.
    */
   isLoggedIn(): boolean {
     return this.user !== null;
+  }
+
+  /**
+   * Checks if the current user has permission to do the _action_.
+   * @param action The action that you want to check
+   */
+  async hasPermission(action: AllowedActionsEnum): Promise<boolean> {
+    if (!this.isLoggedIn()) {
+      return false;
+    }
+    const user = this.user!;
+    if (user.role === UserRoleEnum.ADMIN) {
+      return true;
+    }
+    const policy = await Policy.findOne({ belongsTo: user._id });
+    if (!policy) {
+      console.log(
+        `ERROR: User ${user.email} does not have a policy associated!`
+      );
+      return false;
+    }
+    const canDoAction = policy.permissions.some((val) => action === val);
+    return canDoAction;
   }
 }
