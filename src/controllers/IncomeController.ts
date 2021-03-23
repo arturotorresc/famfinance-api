@@ -12,6 +12,12 @@ export default class IncomeController extends BaseController {
 
   protected async create() {
     const params = this.getParams();
+    const hasPermission = await this.cu.hasPermission(
+      AllowedActionsEnum.CREATE_FAMILY_INCOME
+    );
+    if (!hasPermission) {
+      return this.notAuthorized("You dont have permission to create incomes");
+    }
     const user = this.cu.getUser();
     const category = (params.category as string).trim().toLowerCase();
     const income = new Income({

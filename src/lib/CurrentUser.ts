@@ -22,6 +22,13 @@ export class CurrentUser {
     return this.user;
   }
 
+  isAdmin() {
+    if (!this.user) {
+      return false;
+    }
+    return this.user.role === UserRoleEnum.ADMIN;
+  }
+
   /**
    * Gets the current user's Family. Returns null if the user is not logged in.
    */

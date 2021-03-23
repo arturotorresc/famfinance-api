@@ -16,6 +16,14 @@ export default class ExpenseController extends BaseController {
     if (!user) {
       return this.notAuthorized();
     }
+    const hasPermission = await this.cu.hasPermission(
+      AllowedActionsEnum.CREATE_FAMILY_EXPENSE
+    );
+    if (!hasPermission) {
+      return this.notAuthorized(
+        "You dont have permission to create an expense"
+      );
+    }
     const expense = new Expense({
       title: params.title.trim(),
       category: params.category.trim(),

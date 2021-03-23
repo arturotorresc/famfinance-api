@@ -11,6 +11,8 @@ export enum AllowedActionsEnum {
   EDIT_FAMILY_EXPENSE = "EDIT_FAMILY_EXPENSE",
   DELETE_FAMILY_INCOME = "DELETE_FAMILY_INCOME",
   DELETE_FAMILY_EXPENSE = "DELETE_FAMILY_EXPENSE",
+  CREATE_FAMILY_INCOME = "CREATE_FAMILY_INCOME",
+  CREATE_FAMILY_EXPENSE = "CREATE_FAMILY_EXPENSE",
 }
 
 /**
@@ -35,6 +37,8 @@ const policySchema = new Schema(
         AllowedActionsEnum.DELETE_FAMILY_INCOME,
         AllowedActionsEnum.EDIT_FAMILY_EXPENSE,
         AllowedActionsEnum.EDIT_FAMILY_INCOME,
+        AllowedActionsEnum.CREATE_FAMILY_EXPENSE,
+        AllowedActionsEnum.CREATE_FAMILY_INCOME,
       ],
     },
   },

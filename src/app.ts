@@ -16,6 +16,7 @@ import {
   expenseRouter,
   goalRouter,
   sessionRouter,
+  policyRouter,
 } from "./routes";
 
 export const main = async () => {
@@ -69,6 +70,7 @@ export const main = async () => {
   app.use("/api", expenseRouter);
   app.use("/api", goalRouter);
   app.use("/api", sessionRouter);
+  app.use("/api", policyRouter);
 
   return app;
 };

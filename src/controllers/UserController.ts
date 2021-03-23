@@ -2,7 +2,7 @@ import BaseController, { IArgs } from "./BaseController";
 import bcrypt from "bcrypt";
 import User, { UserRoleEnum } from "../models/user";
 import Family from "../models/family";
-import Policy from "../models/policy";
+import Policy, { AllowedActionsEnum } from "../models/policy";
 import Joi from "joi";
 import passport from "passport";
 
@@ -106,9 +106,14 @@ export default class UserController extends BaseController {
     const savedUser = await user.save();
     const policy = new Policy({
       belongsTo: savedUser._id,
+      permissions: this.getDefaultPermissions(),
     });
     await policy.save();
     return { savedUser };
+  }
+
+  private getDefaultPermissions() {
+    return [];
   }
 
   protected async read() {
