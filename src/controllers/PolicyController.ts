@@ -105,7 +105,7 @@ export default class PolicyController extends BaseController {
       await policy.save();
       this.ok({ user: member, policy });
     } catch (err) {
-      console.log("An error ocurred while giving permission to a member");
+      console.log("An error ocurred while revoking permission to a member");
       console.log(err);
       return this.serverError();
     }

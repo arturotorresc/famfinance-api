@@ -10,22 +10,12 @@ export default class FamilyController extends BaseController {
   }
 
   protected async read() {
-    const user = this.cu.getUser();
-
-    if (user === null) {
-      return this.notAuthorized();
+    const family = await this.cu.getFamily();
+    if (!family) {
+      console.log("No family for user!");
+      return this.notFound();
     }
-
-    Family.find({ admin: user.id })
-      .exec()
-      .then((results) => {
-        return this.res.status(200).json({
-          families: results,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    this.ok({ family });
   }
 
   protected readParams() {

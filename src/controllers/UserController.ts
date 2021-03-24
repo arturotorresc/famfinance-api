@@ -2,7 +2,7 @@ import BaseController, { IArgs } from "./BaseController";
 import bcrypt from "bcrypt";
 import User, { UserRoleEnum } from "../models/user";
 import Family from "../models/family";
-import Policy, { AllowedActionsEnum } from "../models/policy";
+import Policy from "../models/policy";
 import Joi from "joi";
 import passport from "passport";
 
@@ -117,7 +117,19 @@ export default class UserController extends BaseController {
   }
 
   protected async read() {
-    User.find({})
+    const family = await this.cu.getFamily();
+    if (!family) {
+      console.log("No family was found for user!");
+      return this.notFound();
+    }
+    const userIds = [{ _id: family.admin }];
+    family.members.forEach((memberId) => {
+      userIds.push({ _id: memberId });
+    });
+
+    User.find({
+      $or: userIds,
+    })
       .exec()
       .then((results) => {
         return this.res.status(200).json({
