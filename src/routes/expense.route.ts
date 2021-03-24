@@ -22,6 +22,15 @@ router.get("/expense", isAuthenticated(), async (req, res) => {
   await controller.handleRequest();
 });
 
+router.post(`/expenseWeekly`, isAuthenticated(), async (req, res) => {
+  const controller = new ExpenseController({
+    req,
+    res,
+    action: "createWeekly",
+  });
+  await controller.handleRequest();
+});
+
 router.delete("/expense/:id", isAuthenticated(), async (req, res) => {
   const controller = new ExpenseController({
     req,
@@ -30,5 +39,7 @@ router.delete("/expense/:id", isAuthenticated(), async (req, res) => {
   });
   await controller.handleRequest();
 });
+
+
 
 export { router };

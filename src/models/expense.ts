@@ -39,6 +39,11 @@ const expenseSchema = new Schema(
       ref: "User",
       required: true,
     },
+    frequency: {
+      type: Schema.Types.ObjectId,
+      ref: "Frequency",
+      required: false,
+    }
   },
   {
     timestamps: true,

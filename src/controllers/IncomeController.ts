@@ -1,5 +1,6 @@
 import BaseController, { IArgs } from "./BaseController";
 import Income from "../models/income";
+import Frequency from "../models/frequency";
 import { AllowedActionsEnum } from "../models/policy";
 import Joi from "joi";
 
@@ -39,6 +40,53 @@ export default class IncomeController extends BaseController {
       until: Joi.date(),
       qty: Joi.number().required(),
       category: Joi.string().required(),
+    });
+  }
+
+  protected async createWeekly() {
+    const params = this.getParams();
+
+    const hasPermission = await this.cu.hasPermission(
+      AllowedActionsEnum.CREATE_FAMILY_INCOME
+    );
+
+    if (!hasPermission) {
+      return this.notAuthorized("You dont have permission to create incomes");
+    }
+
+    const user = this.cu.getUser();
+    const category = (params.category as string).trim().toLowerCase();
+    const frequency = new Frequency({
+      weekDay: params.weekDay,
+      repetition: params.repetition,
+      repeatsEvery: params.repeatsEvery,
+    });
+
+    const savedFrequency = await frequency.save();
+
+    const income = new Income({
+      title: params.title.trim(),
+      from: params.from,
+      until: params.until,
+      qty: params.qty,
+      category,
+      belongsTo: user!._id,
+      frequency: frequency._id,
+    });
+    const savedIncome = await income.save();
+    this.ok({ income: savedIncome, frequency: savedFrequency});
+  }
+
+  protected createWeeklyParams() {
+    return Joi.object({
+      title: Joi.string().required(),
+      from: Joi.date(),
+      until: Joi.date(),
+      qty: Joi.number().required(),
+      category: Joi.string().required(),
+      weekDay: Joi.number().min(1).max(7).required(),
+      repetition: "WEEKLY",
+      repeatsEvery: Joi.number().min(1).required(),
     });
   }
 

@@ -39,6 +39,11 @@ const incomeSchema = new Schema(
       type: String,
       required: true,
     },
+    frequency: {
+      type: Schema.Types.ObjectId,
+      ref: "Frequency",
+      required: false,
+    }
   },
   {
     timestamps: true,

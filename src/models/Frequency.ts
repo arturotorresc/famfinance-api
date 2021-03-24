@@ -18,8 +18,8 @@ interface IFrequencyDocument extends mongoose.Document {
 
 const frequencySchema = new Schema(
   {
-    weekDays: {
-      type: [Boolean],
+    weekDay: {
+      type: Number,
       required: false,
     },
     weeks: {
@@ -33,11 +33,6 @@ const frequencySchema = new Schema(
     },
     repeatsEvery: {
       type: Number,
-      required: true,
-    },
-    frequency: {
-      type: Schema.Types.ObjectId,
-      ref: "Transaction",
       required: true,
     },
   },
