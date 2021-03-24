@@ -31,6 +31,15 @@ router.post(`/expenseWeekly`, isAuthenticated(), async (req, res) => {
   await controller.handleRequest();
 });
 
+router.post(`/expenseMonthly`, async (req, res) => {
+  const controller = new ExpenseController({
+    req,
+    res,
+    action: "createMonthly",
+  });
+  await controller.handleRequest();
+});
+
 router.delete("/expense/:id", isAuthenticated(), async (req, res) => {
   const controller = new ExpenseController({
     req,

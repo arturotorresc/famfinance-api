@@ -22,6 +22,16 @@ router.post(`/incomeWeekly`, isAuthenticated(), async (req, res) => {
   await controller.handleRequest();
 });
 
+router.post(`/incomeMonthly`, isAuthenticated(), async (req, res) => {
+  const controller = new IncomeController({
+    req,
+    res,
+    action: "createMonthly",
+  });
+  await controller.handleRequest();
+});
+
+
 
 router.get("/income", isAuthenticated(), async (req, res) => {
   const controller = new IncomeController({
