@@ -38,7 +38,7 @@ export default class IncomeController extends BaseController {
       title: Joi.string().required(),
       from: Joi.date(),
       until: Joi.date(),
-      qty: Joi.number().required(),
+      qty: Joi.number().min(0).required(),
       category: Joi.string().required(),
     });
   }
@@ -74,7 +74,7 @@ export default class IncomeController extends BaseController {
       frequency: frequency._id,
     });
     const savedIncome = await income.save();
-    this.ok({ income: savedIncome, frequency: savedFrequency});
+    this.ok({ income: savedIncome, frequency: savedFrequency });
   }
 
   protected createWeeklyParams() {
@@ -82,7 +82,7 @@ export default class IncomeController extends BaseController {
       title: Joi.string().required(),
       from: Joi.date(),
       until: Joi.date(),
-      qty: Joi.number().required(),
+      qty: Joi.number().min(0).required(),
       category: Joi.string().required(),
       weekDay: Joi.number().min(1).max(7).required(),
       repetition: "WEEKLY",
@@ -121,7 +121,7 @@ export default class IncomeController extends BaseController {
       frequency: frequency._id,
     });
     const savedIncome = await income.save();
-    this.ok({ income: savedIncome, frequency: savedFrequency});
+    this.ok({ income: savedIncome, frequency: savedFrequency });
   }
 
   protected createMonthlyParams() {

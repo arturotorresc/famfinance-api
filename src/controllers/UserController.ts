@@ -5,6 +5,7 @@ import Family from "../models/family";
 import Policy from "../models/policy";
 import Joi from "joi";
 import passport from "passport";
+import { main } from "src/app";
 
 interface IUserArgs extends IArgs {}
 
@@ -69,7 +70,7 @@ export default class UserController extends BaseController {
     return Joi.object({
       name: Joi.string().required(),
       email: Joi.string().email().required(),
-      password: Joi.string().required(),
+      password: Joi.string().min(6).required(),
       confirmPassword: Joi.any().valid(Joi.ref("password")).required(),
     });
   }
@@ -78,7 +79,7 @@ export default class UserController extends BaseController {
     return Joi.object({
       name: Joi.string().required(),
       email: Joi.string().email().required(),
-      password: Joi.string().required(),
+      password: Joi.string().min(6).required(),
       confirmPassword: Joi.any().valid(Joi.ref("password")).required(),
       familyId: Joi.string().required(),
     });

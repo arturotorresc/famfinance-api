@@ -9,10 +9,10 @@ export enum FrequencyEnum {
 }
 
 interface IFrequencyDocument extends mongoose.Document {
-  weekDays: [Boolean];
+  weekDays: number;
   weeks: [Boolean];
   repetition: FrequencyEnum;
-  repeatsEvery: Number;
+  repeatsEvery: number;
   frequency: mongodb.ObjectID;
 }
 
