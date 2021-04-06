@@ -9,6 +9,7 @@ interface IExpenseDocument extends mongoose.Document {
   from: Date;
   until: Date;
   qty: Number;
+  frequency: mongodb.ObjectID;
   belongsTo: mongodb.ObjectID;
 }
 
