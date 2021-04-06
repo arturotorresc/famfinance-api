@@ -9,6 +9,7 @@ interface IExpenseDocument extends mongoose.Document {
   from: Date;
   until: Date;
   qty: Number;
+  frequency: mongodb.ObjectID;
   belongsTo: mongodb.ObjectID;
 }
 
@@ -17,10 +18,6 @@ const expenseSchema = new Schema(
     title: {
       type: String,
       required: true,
-    },
-    category: {
-      type: String,
-      required: false,
     },
     from: {
       type: Date,
@@ -34,9 +31,18 @@ const expenseSchema = new Schema(
       type: Number,
       required: true,
     },
+    frequency: {
+      type: Schema.Types.ObjectId,
+      ref: "Frequency",
+      required: true,
+    },
     belongsTo: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    category: {
+      type: String,
       required: true,
     },
   },

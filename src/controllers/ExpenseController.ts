@@ -1,5 +1,6 @@
 import BaseController, { IArgs } from "./BaseController";
 import Expense from "../models/expense";
+import Frequency from "../models/Frequency";
 import Joi from "joi";
 
 interface IExpenseArgs extends IArgs {}
@@ -15,12 +16,24 @@ export default class ExpenseController extends BaseController {
     if (!user) {
       return this.notAuthorized();
     }
+
+    const frequency = new Frequency({
+      day: params.day,
+      weekDay: params.weekDay,
+      weeksRepeat: params.weeksRepeat, 
+      monthsRepeat: params.monthsRepeat,
+      months: params.months,
+      startEndMonth: params.startEndMonth
+    });
+    const savedFrequency = await frequency.save();
+
     const expense = new Expense({
       title: params.title.trim(),
       category: params.category.trim(),
       from: params.from,
       until: params.until,
       qty: params.qty,
+      frequency: savedFrequency._id,
       belongsTo: user._id,
     });
     const savedExpense = await expense.save();
@@ -35,6 +48,12 @@ export default class ExpenseController extends BaseController {
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().required(),
+      day: Joi.number(),
+      weekDay: Joi.string(),
+      weeksRepeat: Joi.number(),
+      monthsRepeat: Joi.number(),
+      months: Joi.array(),
+      startEndMonth: Joi.string()
     });
   }
 
