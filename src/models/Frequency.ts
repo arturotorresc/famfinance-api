@@ -3,49 +3,63 @@ import mongodb from "mongodb";
 
 const { Schema } = mongoose;
 
-export enum FrequencyEnum {
-  MONTHLY= "MONTHLY",
-  WEEKLY = "WEEKLY",
+export enum StartEndMonthEnum {
+  START = "START",
+  END = "END",
 }
 
 interface IFrequencyDocument extends mongoose.Document {
-  weekDays: [Boolean];
-  weeks: [Boolean];
-  repetition: FrequencyEnum;
-  repeatsEvery: Number;
-  frequency: mongodb.ObjectID;
+  startDate: Date,
+  endDate: Date,
+  day: Number,
+  weekDay: String;
+  weeksRepeat: Number;
+  monthsRepeat: Number;
+  months: [String];
+  startEndMonth: String;
 }
 
 const frequencySchema = new Schema(
   {
-    weekDays: {
-        type: [Boolean],
-        required: false,
-    },
-    weeks: {
-      type: [Boolean],
+    startDate: {
+      type: Date,
       required: false,
     },
-    repetition: {
-      type: String,
-      enum: [FrequencyEnum.MONTHLY, FrequencyEnum.WEEKLY],
-      required: true,
+    endDate: {
+      type: Date,
+      required: false,
     },
-    repeatsEvery: {
+    day: {
       type: Number,
-      required: true,
+      required: false
     },
-    frequency: {
-      type: Schema.Types.ObjectId,
-      ref: "Transaction",
-      required: true,
+    weekDay: {
+      type: String,
+      required: false
     },
+    weeksRepeat: {
+      type: Number,
+      required: false
+    },
+    monthsRepeat: {
+      type: Number,
+      required: false
+    },
+    months: {
+      type: [String],
+      required: false
+    },
+    startEndMonth: {
+      type: String,
+      enum: [StartEndMonthEnum.START, StartEndMonthEnum.END],
+      required: false,
+    }
   },
   {
     timestamps: true,
   }
 );
 
-const Frequency = mongoose.model<IIncomeDocument>("Frequency", frequencySchema, "Frequency");
+const Frequency = mongoose.model<IFrequencyDocument>("Frequency", frequencySchema, "Frequency");
 
 export default Frequency;
