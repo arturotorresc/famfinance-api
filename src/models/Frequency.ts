@@ -22,10 +22,6 @@ const frequencySchema = new Schema(
       type: Number,
       required: false,
     },
-    weeks: {
-      type: [Boolean],
-      required: false,
-    },
     repetition: {
       type: String,
       enum: [FrequencyEnum.MONTHLY, FrequencyEnum.WEEKLY],
