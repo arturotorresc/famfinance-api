@@ -4,11 +4,11 @@ import mongodb from "mongodb";
 const { Schema } = mongoose;
 
 interface IExpenseDocument extends mongoose.Document {
-  title: String;
-  category: String;
+  title: string;
+  category: string;
   from: Date;
   until: Date;
-  qty: Number;
+  qty: number;
   belongsTo: mongodb.ObjectID;
 }
 
@@ -43,7 +43,7 @@ const expenseSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Frequency",
       required: false,
-    }
+    },
   },
   {
     timestamps: true,
