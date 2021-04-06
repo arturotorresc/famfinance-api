@@ -132,6 +132,7 @@ export default abstract class BaseController {
     try {
       await schema.validateAsync(params);
     } catch (err) {
+      console.log(err);
       console.log(`Invalid params for ${this.action} action!`);
       return false;
     }
