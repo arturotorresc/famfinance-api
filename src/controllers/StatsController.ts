@@ -18,7 +18,7 @@ export default class StatsController extends BaseController {
   }
 
 
-  protected async calculateWeeklyTransaction(incomes: any, type: any) {
+  protected async calculateWeeklyTransaction(transactions: any, type: any):Promise<Number[]> {
 
     let answer = new Array(weeks);
 
@@ -26,15 +26,15 @@ export default class StatsController extends BaseController {
       answer[i] = 0;
     }
 
-    for(let i = 0; i < incomes.length; i++) {
-      let repeatsEvery = incomes[i].frequency.repeatsEvery;
-      const repetition = incomes[i].frequency.repetition;
-      const startDate = incomes[i].from;
-      const endDate = incomes[i].until;
-      const qty = incomes[i].qty;
+    for(let i = 0; i < transactions.length; i++) {
+      let repeatsEveryNWeeks = transactions[i].frequency.repeatsEvery;
+      const repetition = transactions[i].frequency.repetition;
+      const startDate = transactions[i].from;
+      const endDate = transactions[i].until;
+      const qty = transactions[i].qty;
 
       if(repetition == "MONTHLY") {
-        repeatsEvery *= 4;
+        repeatsEveryNWeeks *= 4;
         continue;
       }
       let sunday = moment().day(7);
@@ -45,7 +45,7 @@ export default class StatsController extends BaseController {
           break;
         }
         const weeksSinceStart = sunday.diff(startDate, "week");
-        if(weeksSinceStart % repeatsEvery === 0) {
+        if(weeksSinceStart % repeatsEveryNWeeks === 0) {
           if(type === "Income") {
             answer[j] += qty;
           } else {
@@ -68,11 +68,21 @@ export default class StatsController extends BaseController {
       return this.notAuthorized();
     }
 
-    let incomes = await Income.find({belongsTo: user.id}).populate('frequency').exec();
-    let expenses = await Expense.find({belongsTo: user.id}).populate('frequency').exec();
+    const incomes = await Income.find({belongsTo: user.id}).populate('frequency').exec();
+    const expenses = await Expense.find({belongsTo: user.id}).populate('frequency').exec();
 
-    let weeklyIncome = this.calculateWeeklyTransaction(incomes, "Income");
-    let weeklyExpense = this.calculateWeeklyTransaction(incomes, "Expense");
+    let weeklyIncome = await this.calculateWeeklyTransaction(incomes, "Income");
+    let weeklyExpense = await this.calculateWeeklyTransaction(expenses, "Expense");
+    let result = new Array(weeks);
+
+    console.log(typeof weeklyIncome);
+    for(let i = 0; i < weeks; i++) {
+      result[i] = weeklyExpense[i] + weeklyIncome[i];
+    }
+
+    return this.res.status(200).json({
+      weeklyStats: result
+    });
 
   }
 

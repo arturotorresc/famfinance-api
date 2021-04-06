@@ -4,7 +4,7 @@ import { isAuthenticated } from "../middleware/isAuthenticated";
 
 const router = express.Router();
 
-router.get("/statsWeekly", isAuthenticated(), async (req, res) => {
+router.get("/weeklyStats", isAuthenticated(), async (req, res) => {
   const controller = new StatsController({
     req,
     res,
