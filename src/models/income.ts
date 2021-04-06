@@ -9,6 +9,7 @@ interface IIncomeDocument extends mongoose.Document {
   from: Date;
   until: Date;
   qty: Number;
+  frequency: mongodb.ObjectID;
   belongsTo: mongodb.ObjectID;
 }
 
@@ -28,6 +29,11 @@ const incomeSchema = new Schema(
     },
     qty: {
       type: Number,
+      required: true,
+    },
+    frequency: {
+      type: Schema.Types.ObjectId,
+      ref: "Frequency",
       required: true,
     },
     belongsTo: {

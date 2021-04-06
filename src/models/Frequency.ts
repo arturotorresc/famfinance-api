@@ -9,9 +9,7 @@ export enum StartEndMonthEnum {
 }
 
 interface IFrequencyDocument extends mongoose.Document {
-  startDate: Date,
-  endDate: Date,
-  day: Number,
+  day: Number;
   weekDay: String;
   weeksRepeat: Number;
   monthsRepeat: Number;
@@ -19,16 +17,7 @@ interface IFrequencyDocument extends mongoose.Document {
   startEndMonth: String;
 }
 
-const frequencySchema = new Schema(
-  {
-    startDate: {
-      type: Date,
-      required: false,
-    },
-    endDate: {
-      type: Date,
-      required: false,
-    },
+const frequencySchema = new Schema({
     day: {
       type: Number,
       required: false
