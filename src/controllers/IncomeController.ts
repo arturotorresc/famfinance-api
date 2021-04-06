@@ -20,6 +20,17 @@ export default class IncomeController extends BaseController {
       return this.notAuthorized("You dont have permission to create incomes");
     }
     const user = this.cu.getUser();
+
+    const frequency = new Frequency({
+      day: params.day,
+      weekDay: params.weekDay,
+      weeksRepeat: params.weeksRepeat, 
+      monthsRepeat: params.monthsRepeat,
+      months: params.months,
+      startEndMonth: params.startEndMonth
+    });
+    const savedFrequency = await frequency.save();
+
     const category = (params.category as string).trim().toLowerCase();
     const income = new Income({
       title: params.title.trim(),
@@ -27,6 +38,7 @@ export default class IncomeController extends BaseController {
       until: params.until,
       qty: params.qty,
       category,
+      frequency: savedFrequency._id,
       belongsTo: user!._id,
     });
     const savedIncome = await income.save();
@@ -40,6 +52,12 @@ export default class IncomeController extends BaseController {
       until: Joi.date(),
       qty: Joi.number().required(),
       category: Joi.string().required(),
+      day: Joi.number(),
+      weekDay: Joi.string(),
+      weeksRepeat: Joi.number(),
+      monthsRepeat: Joi.number(),
+      months: Joi.array(),
+      startEndMonth: Joi.string()
     });
   }
 
