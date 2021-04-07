@@ -8,7 +8,8 @@ export interface IIncomeDocument extends mongoose.Document {
   category: string;
   from: Date;
   until: Date;
-  qty: number;
+  qty: Number;
+  frequency: mongodb.ObjectID;
   belongsTo: mongodb.ObjectID;
 }
 

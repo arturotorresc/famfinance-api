@@ -12,7 +12,7 @@ router.get(`/me`, async (req, res) => {
   await controller.handleRequest();
 });
 
-router.get("/logout", async (req, res) => {
+router.post("/logout", async (req, res) => {
   const controller = new SessionController({
     req,
     res,

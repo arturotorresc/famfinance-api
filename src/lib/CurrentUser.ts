@@ -51,6 +51,13 @@ export class CurrentUser {
   }
 
   /**
+   * Sets the user to null once it logs out
+   */
+  logOut(): void {
+    this.user = null;
+  }
+
+  /**
    * Checks if the current user has permission to do the _action_.
    * @param action The action that you want to check
    */

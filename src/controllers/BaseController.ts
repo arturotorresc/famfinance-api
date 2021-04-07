@@ -22,7 +22,7 @@ export default abstract class BaseController {
   protected readonly req: express.Request;
   protected readonly res: express.Response;
   protected readonly action: string;
-  protected readonly cu: CurrentUser;
+  protected cu: CurrentUser;
   private hasSentResponse: boolean;
 
   constructor({ req, res, action }: IArgs) {
