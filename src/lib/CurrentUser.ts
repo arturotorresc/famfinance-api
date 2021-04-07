@@ -69,7 +69,8 @@ export class CurrentUser {
       );
       return false;
     }
-    const canDoAction = policy.permissions.some((val) => action === val);
+    const permissions = policy.permissions || [];
+    const canDoAction = permissions.some((val) => action === val);
     return canDoAction;
   }
 }

@@ -3,7 +3,7 @@ import mongodb from "mongodb";
 
 const { Schema } = mongoose;
 
-interface IExpenseDocument extends mongoose.Document {
+export interface IExpenseDocument extends mongoose.Document {
   title: string;
   category: string;
   from: Date;

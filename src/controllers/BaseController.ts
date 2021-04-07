@@ -50,6 +50,7 @@ export default abstract class BaseController {
       await method();
     } catch (err) {
       console.log(`An error ocurred while handling the request`);
+      console.log(err);
       if (!this.hasSentResponse) {
         this.serverError();
       }

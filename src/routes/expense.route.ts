@@ -1,5 +1,6 @@
 import express from "express";
 import ExpenseController from "../controllers/ExpenseController";
+import TransactionHistoryController from "../controllers/TransactionHistoryController";
 import { isAuthenticated } from "../middleware/isAuthenticated";
 
 const router = express.Router();
@@ -49,6 +50,13 @@ router.delete("/expense/:id", isAuthenticated(), async (req, res) => {
   await controller.handleRequest();
 });
 
-
+router.get("/expense/history", isAuthenticated(), async (req, res) => {
+  const controller = new TransactionHistoryController({
+    req,
+    res,
+    action: "expenseHistory",
+  });
+  await controller.handleRequest();
+});
 
 export { router };

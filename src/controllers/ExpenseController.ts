@@ -78,11 +78,11 @@ export default class ExpenseController extends BaseController {
       until: params.until,
       qty: params.qty,
       belongsTo: user._id,
-      frequency: frequency._id
+      frequency: frequency._id,
     });
     const savedExpense = await expense.save();
 
-    this.ok({ expense: savedExpense, frequency: savedFrequency});
+    this.ok({ expense: savedExpense, frequency: savedFrequency });
   }
 
   protected createWeeklyParams() {
@@ -128,11 +128,11 @@ export default class ExpenseController extends BaseController {
       until: params.until,
       qty: params.qty,
       belongsTo: user._id,
-      frequency: frequency._id
+      frequency: savedFrequency._id,
     });
     const savedExpense = await expense.save();
 
-    this.ok({ expense: savedExpense, frequency: savedFrequency});
+    this.ok({ expense: savedExpense, frequency: savedFrequency });
   }
 
   protected createMonthlyParams() {
@@ -147,7 +147,6 @@ export default class ExpenseController extends BaseController {
       repeatsEvery: Joi.number().min(1).required(),
     });
   }
-
 
   protected async read() {
     const user = this.cu.getUser();
