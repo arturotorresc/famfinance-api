@@ -14,7 +14,9 @@ export default class SessionController extends BaseController {
 
   protected async logout() {
     this.req.logout();
-    this.redirect("/login");
+    this.cu.logOut();
+    console.log("User logged out!");
+    return this.ok({});
   }
 
   protected meParams() {
