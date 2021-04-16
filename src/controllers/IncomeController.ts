@@ -22,6 +22,7 @@ export default class IncomeController extends BaseController {
     const user = this.cu.getUser();
 
     const frequency = new Frequency({
+      frequencyType: params.frequencyType,
       day: params.day,
       weekDay: params.weekDay,
       weeksRepeat: params.weeksRepeat, 
@@ -52,12 +53,13 @@ export default class IncomeController extends BaseController {
       until: Joi.date(),
       qty: Joi.number().min(0).required(),
       category: Joi.string().required(),
-      day: Joi.number(),
-      weekDay: Joi.string(),
-      weeksRepeat: Joi.number(),
-      monthsRepeat: Joi.number(),
-      months: Joi.array(),
-      startEndMonth: Joi.string()
+      frequencyType: Joi.string(),
+      day: Joi.number().allow(null),
+      weekDay: Joi.string().allow(null),
+      weeksRepeat: Joi.number().allow(null),
+      monthsRepeat: Joi.number().allow(null),
+      months: Joi.array().allow(null),
+      startEndMonth: Joi.string().allow(null)
     });
   }
 
