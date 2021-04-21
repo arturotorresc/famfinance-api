@@ -183,4 +183,77 @@ export default class UserController extends BaseController {
       password: Joi.string().required(),
     });
   }
+
+  protected async update() {
+    const params = this.getParams();
+    const user = this.cu.getUser();
+
+    if (user === null) {
+      return this.notAuthorized();
+    }
+
+
+    User.findByIdAndUpdate(
+      user._id,
+      {
+        name: params.name
+      },
+      { new: true }
+    )
+      .exec()
+      .then((results) => {
+        return this.res.status(200).json({
+          user: results,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  protected updateParams() {
+    return Joi.object({
+      name: Joi.string().required()
+    });
+  }
+
+  protected async updatePassword() {
+    const params = this.getParams();
+    const user = this.cu.getUser();
+
+    if (user === null) {
+      return this.notAuthorized();
+    }
+
+    if(await bcrypt.compare(params.oldPassword, user.password)) {
+
+      const hashedPassword = await bcrypt.hash(params.newPassword, 10);
+      User.findByIdAndUpdate(
+        user._id,
+        {
+          password: hashedPassword
+        },
+        { new: true }
+      )
+        .exec()
+        .then((results) => {
+          return this.res.status(200).json({
+            user: results,
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+    else {
+      console.log("Incorrect Password");
+    }
+  }
+
+  protected updatePasswordParams() {
+    return Joi.object({
+      oldPassword: Joi.string().min(6).required(),
+      newPassword: Joi.string().min(6).required(),
+    });
+  }
 }

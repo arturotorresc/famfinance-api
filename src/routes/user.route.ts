@@ -48,4 +48,22 @@ router.get("/users/:id", isAuthenticated(), async (req, res) => {
   await controller.handleRequest();
 });
 
+router.put("/user", isAuthenticated(), async (req, res) => {
+  const controller = new UserController({
+    req,
+    res,
+    action: "update",
+  });
+  await controller.handleRequest();
+});
+
+router.put("/password", isAuthenticated(), async (req, res) => {
+  const controller = new UserController({
+    req,
+    res,
+    action: "updatePassword",
+  });
+  await controller.handleRequest();
+});
+
 export { router };
