@@ -39,4 +39,13 @@ router.get("/users", isAuthenticated(), async (req, res) => {
   await controller.handleRequest();
 });
 
+router.get("/users/:id", isAuthenticated(), async (req, res) => {
+  const controller = new UserController({
+    req,
+    res,
+    action: "readMember",
+  });
+  await controller.handleRequest();
+});
+
 export { router };

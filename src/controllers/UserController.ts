@@ -5,7 +5,6 @@ import Family from "../models/family";
 import Policy from "../models/policy";
 import Joi from "joi";
 import passport from "passport";
-import { main } from "src/app";
 
 interface IUserArgs extends IArgs {}
 
@@ -143,6 +142,20 @@ export default class UserController extends BaseController {
   }
 
   private readParams() {
+    return Joi.object({});
+  }
+
+  private async readMember() {
+    const { id } = this.req.params;
+    const user = await User.findById(id);
+    if (!user) {
+      return this.notFound("User not found");
+    }
+    const policy = await Policy.findOne({ belongsTo: user._id });
+    this.ok({ user, policy });
+  }
+
+  private readMemberParams() {
     return Joi.object({});
   }
 

@@ -31,14 +31,18 @@ const policySchema = new Schema(
       required: true,
     },
     permissions: {
-      type: String,
-      enum: [
-        AllowedActionsEnum.DELETE_FAMILY_EXPENSE,
-        AllowedActionsEnum.DELETE_FAMILY_INCOME,
-        AllowedActionsEnum.EDIT_FAMILY_EXPENSE,
-        AllowedActionsEnum.EDIT_FAMILY_INCOME,
-        AllowedActionsEnum.CREATE_FAMILY_EXPENSE,
-        AllowedActionsEnum.CREATE_FAMILY_INCOME,
+      type: [
+        {
+          type: String,
+          enum: [
+            AllowedActionsEnum.DELETE_FAMILY_EXPENSE,
+            AllowedActionsEnum.DELETE_FAMILY_INCOME,
+            AllowedActionsEnum.EDIT_FAMILY_EXPENSE,
+            AllowedActionsEnum.EDIT_FAMILY_INCOME,
+            AllowedActionsEnum.CREATE_FAMILY_EXPENSE,
+            AllowedActionsEnum.CREATE_FAMILY_INCOME,
+          ],
+        },
       ],
     },
   },

@@ -119,4 +119,13 @@ export default class PolicyController extends BaseController {
         .required(),
     });
   }
+
+  private async getAllPermissions() {
+    const permissions = Object.keys(AllowedActionsEnum);
+    this.ok({ permissions });
+  }
+
+  private getAllPermissionsParams() {
+    return Joi.object({});
+  }
 }

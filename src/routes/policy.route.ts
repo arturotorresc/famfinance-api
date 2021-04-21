@@ -21,4 +21,13 @@ router.put(`/policy/revoke-permission`, async (req, res) => {
   await controller.handleRequest();
 });
 
+router.get("/policies", async (req, res) => {
+  const controller = new PolicyController({
+    req,
+    res,
+    action: "getAllPermissions",
+  });
+  await controller.handleRequest();
+});
+
 export { router };
