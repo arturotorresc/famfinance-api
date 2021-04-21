@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import mongodb from "mongodb";
+import { TransactionCategoryEnum } from "../types/transactionCategory.type";
 
 const { Schema } = mongoose;
 
@@ -39,6 +40,7 @@ const incomeSchema = new Schema(
     category: {
       type: String,
       required: true,
+      enum: [...Object.keys(TransactionCategoryEnum)],
     },
     frequency: {
       type: Schema.Types.ObjectId,

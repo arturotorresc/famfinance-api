@@ -2,6 +2,7 @@ import BaseController, { IArgs } from "./BaseController";
 import Expense from "../models/expense";
 import Frequency from "../models/frequency";
 import { AllowedActionsEnum } from "../models/policy";
+import { TransactionCategoryEnum } from "../types/transactionCategory.type";
 import Joi from "joi";
 
 interface IExpenseArgs extends IArgs {}
@@ -29,10 +30,10 @@ export default class ExpenseController extends BaseController {
     const frequency = new Frequency({
       day: params.day,
       weekDay: params.weekDay,
-      weeksRepeat: params.weeksRepeat, 
+      weeksRepeat: params.weeksRepeat,
       monthsRepeat: params.monthsRepeat,
       months: params.months,
-      startEndMonth: params.startEndMonth
+      startEndMonth: params.startEndMonth,
     });
     const savedFrequency = await frequency.save();
 
@@ -53,7 +54,9 @@ export default class ExpenseController extends BaseController {
   protected createParams() {
     return Joi.object({
       title: Joi.string().required(),
-      category: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().required(),
@@ -62,7 +65,7 @@ export default class ExpenseController extends BaseController {
       weeksRepeat: Joi.number(),
       monthsRepeat: Joi.number(),
       months: Joi.array(),
-      startEndMonth: Joi.string()
+      startEndMonth: Joi.string(),
     });
   }
 
@@ -106,7 +109,9 @@ export default class ExpenseController extends BaseController {
   protected createWeeklyParams() {
     return Joi.object({
       title: Joi.string().required(),
-      category: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().required(),
@@ -156,7 +161,9 @@ export default class ExpenseController extends BaseController {
   protected createMonthlyParams() {
     return Joi.object({
       title: Joi.string().required(),
-      category: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().required(),

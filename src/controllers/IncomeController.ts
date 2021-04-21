@@ -2,6 +2,7 @@ import BaseController, { IArgs } from "./BaseController";
 import Income from "../models/income";
 import Frequency from "../models/frequency";
 import { AllowedActionsEnum } from "../models/policy";
+import { TransactionCategoryEnum } from "../types/transactionCategory.type";
 import Joi from "joi";
 
 interface IIncomeArgs extends IArgs {}
@@ -25,10 +26,10 @@ export default class IncomeController extends BaseController {
       frequencyType: params.frequencyType,
       day: params.day,
       weekDay: params.weekDay,
-      weeksRepeat: params.weeksRepeat, 
+      weeksRepeat: params.weeksRepeat,
       monthsRepeat: params.monthsRepeat,
       months: params.months,
-      startEndMonth: params.startEndMonth
+      startEndMonth: params.startEndMonth,
     });
     const savedFrequency = await frequency.save();
 
@@ -52,14 +53,16 @@ export default class IncomeController extends BaseController {
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().min(0).required(),
-      category: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       frequencyType: Joi.string(),
       day: Joi.number().allow(null),
       weekDay: Joi.string().allow(null),
       weeksRepeat: Joi.number().allow(null),
       monthsRepeat: Joi.number().allow(null),
       months: Joi.array().allow(null),
-      startEndMonth: Joi.string().allow(null)
+      startEndMonth: Joi.string().allow(null),
     });
   }
 
@@ -103,7 +106,9 @@ export default class IncomeController extends BaseController {
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().min(0).required(),
-      category: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       weekDay: Joi.number().min(1).max(7).required(),
       repetition: "WEEKLY",
       repeatsEvery: Joi.number().min(1).required(),
@@ -150,7 +155,9 @@ export default class IncomeController extends BaseController {
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().required(),
-      category: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       weekDay: Joi.number().min(1).max(7).required(),
       repetition: "MONTHLY",
       repeatsEvery: Joi.number().min(1).required(),
