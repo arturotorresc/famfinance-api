@@ -14,20 +14,11 @@ router.post(`/income`, isAuthenticated(), async (req, res) => {
   await controller.handleRequest();
 });
 
-router.post(`/incomeWeekly`, isAuthenticated(), async (req, res) => {
+router.put(`/income/:id`, isAuthenticated(), async (req, res) => {
   const controller = new IncomeController({
     req,
     res,
-    action: "createWeekly",
-  });
-  await controller.handleRequest();
-});
-
-router.post(`/incomeMonthly`, isAuthenticated(), async (req, res) => {
-  const controller = new IncomeController({
-    req,
-    res,
-    action: "createMonthly",
+    action: "update",
   });
   await controller.handleRequest();
 });
@@ -37,6 +28,15 @@ router.get("/income", isAuthenticated(), async (req, res) => {
     req,
     res,
     action: "read",
+  });
+  await controller.handleRequest();
+});
+
+router.get("/income/:id", isAuthenticated(), async (req, res) => {
+  const controller = new IncomeController({
+    req,
+    res,
+    action: "readOne",
   });
   await controller.handleRequest();
 });

@@ -1,5 +1,4 @@
 import BaseController, { IArgs } from "./BaseController";
-import Family from "../models/family";
 import Joi from "joi";
 
 interface IFamilyArgs extends IArgs {}

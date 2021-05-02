@@ -28,9 +28,9 @@ export default class IncomeController extends BaseController {
       weeksRepeat: params.weeksRepeat,
       monthsRepeat: params.monthsRepeat,
       months: params.months,
-      startEndMonth: params.startEndMonth
+      startEndMonth: params.startEndMonth,
     });
-    
+
     const savedFrequency = await frequency.save();
 
     const category = (params.category as string).trim().toLowerCase();
@@ -60,22 +60,13 @@ export default class IncomeController extends BaseController {
       weeksRepeat: Joi.number().allow(null),
       monthsRepeat: Joi.number().allow(null),
       months: Joi.array().allow(null),
-      startEndMonth: Joi.string().allow(null)
+      startEndMonth: Joi.string().allow(null),
     });
   }
 
-  protected async createWeekly() {
-    const params = this.getParams();
-
-    const hasPermission = await this.cu.hasPermission(
-      AllowedActionsEnum.CREATE_FAMILY_INCOME
-    );
-
-    if (!hasPermission) {
-      return this.notAuthorized("You dont have permission to create incomes");
-    }
-
+  protected async read() {
     const user = this.cu.getUser();
+<<<<<<< HEAD
     const category = (params.category as string).trim().toLowerCase();
     const frequency = new Frequency({
       frequencyType: "WEEKLY",
@@ -84,84 +75,11 @@ export default class IncomeController extends BaseController {
     });
 
     const savedFrequency = await frequency.save();
-
-    const income = new Income({
-      title: params.title.trim(),
-      from: params.from,
-      until: params.until,
-      qty: params.qty,
-      category,
-      belongsTo: user!._id,
-      frequency: frequency._id,
-    });
-    const savedIncome = await income.save();
-    this.ok({ income: savedIncome, frequency: savedFrequency });
-  }
-
-  protected createWeeklyParams() {
-    return Joi.object({
-      title: Joi.string().required(),
-      from: Joi.date(),
-      until: Joi.date(),
-      qty: Joi.number().min(0).required(),
-      category: Joi.string().required(),
-      weekDay: Joi.string().required(),
-      weeksRepeat: Joi.number().min(1).required(),
-    });
-  }
-
-  protected async createMonthly() {
-    const params = this.getParams();
-
-    const hasPermission = await this.cu.hasPermission(
-      AllowedActionsEnum.CREATE_FAMILY_INCOME
-    );
-
-    if (!hasPermission) {
-      return this.notAuthorized("You dont have permission to create incomes");
-    }
-
-    const user = this.cu.getUser();
-    const category = (params.category as string).trim().toLowerCase();
-    const frequency = new Frequency({
-      weekDay: params.weekDay,
-      repetition: params.repetition,
-      weeksRepeat: params.repeatsEvery,
-    });
-
-    const savedFrequency = await frequency.save();
-
-    const income = new Income({
-      title: params.title.trim(),
-      from: params.from,
-      until: params.until,
-      qty: params.qty,
-      category,
-      belongsTo: user!._id,
-      frequency: frequency._id,
-    });
-    const savedIncome = await income.save();
-    this.ok({ income: savedIncome, frequency: savedFrequency });
-  }
-
-  protected createMonthlyParams() {
-    return Joi.object({
-      title: Joi.string().required(),
-      from: Joi.date(),
-      until: Joi.date(),
-      qty: Joi.number().required(),
-      category: Joi.string().required(),
-      weekDay: Joi.number().min(1).max(7).required(),
-      repetition: "MONTHLY",
-      repeatsEvery: Joi.number().min(1).required(),
-    });
-  }
-
-  protected async read() {
-    const user = this.cu.getUser();
+=======
     if (user === null) {
       return this.notAuthorized();
     }
+>>>>>>> dab074d98d7a99313f36317f7e76f9f1bc36a4d1
 
     const params = this.getParams();
     const family = await this.cu.getFamily();
@@ -197,6 +115,85 @@ export default class IncomeController extends BaseController {
     return Joi.object({
       id: Joi.string().optional(),
     });
+  }
+
+  protected async update() {
+    const id = this.req.params.id;
+    const params = this.getParams();
+    const hasPermission = await this.cu.hasPermission(
+      // TODO: Add the proper permission for this
+      AllowedActionsEnum.CREATE_FAMILY_INCOME
+    );
+    if (!hasPermission) {
+      return this.notAuthorized("You dont have permission to update incomes");
+    }
+    const user = this.cu.getUser();
+
+    const category = (params.category as string).trim().toLowerCase();
+    const income = {
+      title: params.title.trim(),
+      from: params.from,
+      until: params.until,
+      qty: params.qty,
+      category,
+      belongsTo: user!._id,
+    };
+
+    const updatedIncome = await Income.findByIdAndUpdate({ _id: id }, income);
+
+    const frequency = {
+      frequencyType: params.frequencyType,
+      day: params.day,
+      weekDay: params.weekDay,
+      weeksRepeat: params.weeksRepeat,
+      monthsRepeat: params.monthsRepeat,
+      months: params.months,
+      startEndMonth: params.startEndMonth,
+    };
+
+    const updatedFrequency = await Frequency.findByIdAndUpdate({ _id: updatedIncome?.frequency }, frequency);
+    this.ok({ income: updatedIncome });
+  }
+
+  protected updateParams() {
+    return Joi.object({
+      title: Joi.string().required(),
+      from: Joi.date(),
+      until: Joi.date(),
+      qty: Joi.number().min(0).required(),
+      category: Joi.string().required(),
+      frequencyType: Joi.string(),
+      day: Joi.number().allow(null),
+      weekDay: Joi.string().allow(null),
+      weeksRepeat: Joi.number().allow(null),
+      monthsRepeat: Joi.number().allow(null),
+      months: Joi.array().allow(null),
+      startEndMonth: Joi.string().allow(null),
+    });
+  }
+
+  protected async readOne() {
+    const id = this.req.params.id;
+    const user = this.cu.getUser();
+    if (user === null) {
+      return this.notAuthorized();
+    }
+
+    Income.findById({ _id: id })
+      .populate("frequency")
+      .then((income) => {
+        console.log(income);
+        return this.res.status(200).json({
+          income: income,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  protected readOneParams() {
+    return Joi.object({});
   }
 
   private async destroy() {
