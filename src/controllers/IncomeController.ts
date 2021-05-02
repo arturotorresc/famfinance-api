@@ -25,11 +25,12 @@ export default class IncomeController extends BaseController {
       frequencyType: params.frequencyType,
       day: params.day,
       weekDay: params.weekDay,
-      weeksRepeat: params.weeksRepeat, 
+      weeksRepeat: params.weeksRepeat,
       monthsRepeat: params.monthsRepeat,
       months: params.months,
       startEndMonth: params.startEndMonth
     });
+    
     const savedFrequency = await frequency.save();
 
     const category = (params.category as string).trim().toLowerCase();
@@ -77,9 +78,9 @@ export default class IncomeController extends BaseController {
     const user = this.cu.getUser();
     const category = (params.category as string).trim().toLowerCase();
     const frequency = new Frequency({
+      frequencyType: "WEEKLY",
       weekDay: params.weekDay,
-      repetition: params.repetition,
-      repeatsEvery: params.repeatsEvery,
+      weeksRepeat: params.weeksRepeat,
     });
 
     const savedFrequency = await frequency.save();
@@ -104,9 +105,8 @@ export default class IncomeController extends BaseController {
       until: Joi.date(),
       qty: Joi.number().min(0).required(),
       category: Joi.string().required(),
-      weekDay: Joi.number().min(1).max(7).required(),
-      repetition: "WEEKLY",
-      repeatsEvery: Joi.number().min(1).required(),
+      weekDay: Joi.string().required(),
+      weeksRepeat: Joi.number().min(1).required(),
     });
   }
 
@@ -126,7 +126,7 @@ export default class IncomeController extends BaseController {
     const frequency = new Frequency({
       weekDay: params.weekDay,
       repetition: params.repetition,
-      repeatsEvery: params.repeatsEvery,
+      weeksRepeat: params.repeatsEvery,
     });
 
     const savedFrequency = await frequency.save();
