@@ -213,6 +213,7 @@ export default class ExpenseController extends BaseController {
     const expense = await Expense.findOneAndDelete({ _id: id });
     if (expense) {
       console.log(`Expense ${expense._id} deleted.`);
+      await Frequency.findOneAndDelete({_id: expense.frequency})
     } else {
       console.log(`No Expense with that ID`);
     }
