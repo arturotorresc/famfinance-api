@@ -66,20 +66,10 @@ export default class IncomeController extends BaseController {
 
   protected async read() {
     const user = this.cu.getUser();
-<<<<<<< HEAD
-    const category = (params.category as string).trim().toLowerCase();
-    const frequency = new Frequency({
-      frequencyType: "WEEKLY",
-      weekDay: params.weekDay,
-      weeksRepeat: params.weeksRepeat,
-    });
 
-    const savedFrequency = await frequency.save();
-=======
     if (user === null) {
       return this.notAuthorized();
     }
->>>>>>> dab074d98d7a99313f36317f7e76f9f1bc36a4d1
 
     const params = this.getParams();
     const family = await this.cu.getFamily();
