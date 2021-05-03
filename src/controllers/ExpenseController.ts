@@ -90,6 +90,7 @@ export default class ExpenseController extends BaseController {
       query = { $and: [{ _id: params.id }, { $or: belongsToArray }] };
     }
     Expense.find(query)
+      .populate('frequency')
       .exec()
       .then((results) => {
         return this.res.status(200).json({
