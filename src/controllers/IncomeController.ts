@@ -92,6 +92,7 @@ export default class IncomeController extends BaseController {
       query = { $and: [{ _id: params.id }, { $or: belongsToArray }] };
     }
     Income.find(query)
+      .populate('frequency')
       .exec()
       .then((results) => {
         return this.res.status(200).json({
@@ -105,16 +106,15 @@ export default class IncomeController extends BaseController {
 
   protected readParams() {
     return Joi.object({
-      title: Joi.string().required(),
-      from: Joi.date(),
-      until: Joi.date(),
-      qty: Joi.number().min(0).required(),
+      title: Joi.string().optional(),
       category: Joi.string()
         .valid(...Object.keys(TransactionCategoryEnum))
-        .required(),
-      weekDay: Joi.number().min(1).max(7).required(),
-      repetition: "WEEKLY",
-      repeatsEvery: Joi.number().min(1).required(),
+        .optional(),
+      from: Joi.date().optional(),
+      until: Joi.date().optional(),
+      qty: Joi.number().optional(),
+      weekDay: Joi.number().min(1).max(7).optional(),
+      repeatsEvery: Joi.number().min(1).optional(),
       id: Joi.string().optional(),
     });
   }
@@ -213,6 +213,7 @@ export default class IncomeController extends BaseController {
     const income = await Income.findOneAndDelete({ _id: id });
     if (income) {
       console.log(`Income ${income._id} deleted.`);
+      await Frequency.findOneAndDelete({_id: income.frequency})
     } else {
       console.log(`No Income with that ID`);
     }
