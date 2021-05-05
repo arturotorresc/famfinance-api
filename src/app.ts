@@ -25,6 +25,7 @@ export const main = async () => {
   const originAllowlist = (process.env.CLIENT_ALLOWLIST as string).split(
     /,\s*/
   );
+  originAllowlist.push("http://localhost:3000");
   const corsOptions = {
     origin: (origin?: string, callback?: any) => {
       if (!origin || originAllowlist.some((val) => val === origin)) {
