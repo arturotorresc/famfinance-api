@@ -103,18 +103,7 @@ export default class ExpenseController extends BaseController {
   }
 
   protected readParams() {
-    return Joi.object({
-      title: Joi.string().required(),
-      category: Joi.string()
-        .valid(...Object.keys(TransactionCategoryEnum))
-        .required(),
-      from: Joi.date(),
-      until: Joi.date(),
-      qty: Joi.number().required(),
-      weekDay: Joi.number().min(1).max(7).required(),
-      repeatsEvery: Joi.number().min(1).required(),
-      id: Joi.string().optional(),
-    });
+    return Joi.object({});
   }
 
   protected async update() {
