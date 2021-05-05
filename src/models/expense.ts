@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import mongodb from "mongodb";
+import { TransactionCategoryEnum } from "../types/transactionCategory.type";
 
 const { Schema } = mongoose;
 
@@ -22,6 +23,7 @@ const expenseSchema = new Schema(
     category: {
       type: String,
       required: false,
+      enum: [...Object.keys(TransactionCategoryEnum)],
     },
     from: {
       type: Date,

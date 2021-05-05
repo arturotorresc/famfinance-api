@@ -2,6 +2,7 @@ import BaseController, { IArgs } from "./BaseController";
 import Income from "../models/income";
 import Frequency from "../models/frequency";
 import { AllowedActionsEnum } from "../models/policy";
+import { TransactionCategoryEnum } from "../types/transactionCategory.type";
 import Joi from "joi";
 
 interface IIncomeArgs extends IArgs {}
@@ -53,7 +54,9 @@ export default class IncomeController extends BaseController {
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().min(0).required(),
-      category: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       frequencyType: Joi.string(),
       day: Joi.number().allow(null),
       weekDay: Joi.string().allow(null),
@@ -103,6 +106,16 @@ export default class IncomeController extends BaseController {
 
   protected readParams() {
     return Joi.object({
+      title: Joi.string().required(),
+      from: Joi.date(),
+      until: Joi.date(),
+      qty: Joi.number().min(0).required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
+      weekDay: Joi.number().min(1).max(7).required(),
+      repetition: "WEEKLY",
+      repeatsEvery: Joi.number().min(1).required(),
       id: Joi.string().optional(),
     });
   }
@@ -141,7 +154,10 @@ export default class IncomeController extends BaseController {
       startEndMonth: params.startEndMonth,
     };
 
-    const updatedFrequency = await Frequency.findByIdAndUpdate({ _id: updatedIncome?.frequency }, frequency);
+    const updatedFrequency = await Frequency.findByIdAndUpdate(
+      { _id: updatedIncome?.frequency },
+      frequency
+    );
     this.ok({ income: updatedIncome });
   }
 
@@ -150,8 +166,10 @@ export default class IncomeController extends BaseController {
       title: Joi.string().required(),
       from: Joi.date(),
       until: Joi.date(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       qty: Joi.number().min(0).required(),
-      category: Joi.string().required(),
       frequencyType: Joi.string(),
       day: Joi.number().allow(null),
       weekDay: Joi.string().allow(null),

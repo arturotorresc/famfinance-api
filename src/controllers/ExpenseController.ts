@@ -2,6 +2,7 @@ import BaseController, { IArgs } from "./BaseController";
 import Expense from "../models/expense";
 import Frequency from "../models/frequency";
 import { AllowedActionsEnum } from "../models/policy";
+import { TransactionCategoryEnum } from "../types/transactionCategory.type";
 import Joi from "joi";
 
 interface IExpenseArgs extends IArgs {}
@@ -49,10 +50,12 @@ export default class ExpenseController extends BaseController {
   protected createParams() {
     return Joi.object({
       title: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().min(0).required(),
-      category: Joi.string().required(),
       frequencyType: Joi.string(),
       day: Joi.number().allow(null),
       weekDay: Joi.string().allow(null),
@@ -101,6 +104,15 @@ export default class ExpenseController extends BaseController {
 
   protected readParams() {
     return Joi.object({
+      title: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
+      from: Joi.date(),
+      until: Joi.date(),
+      qty: Joi.number().required(),
+      weekDay: Joi.number().min(1).max(7).required(),
+      repeatsEvery: Joi.number().min(1).required(),
       id: Joi.string().optional(),
     });
   }
@@ -127,7 +139,10 @@ export default class ExpenseController extends BaseController {
       belongsTo: user!._id,
     };
 
-    const updatedExpense = await Expense.findByIdAndUpdate({ _id: id }, expense);
+    const updatedExpense = await Expense.findByIdAndUpdate(
+      { _id: id },
+      expense
+    );
 
     const frequency = {
       frequencyType: params.frequencyType,
@@ -139,17 +154,22 @@ export default class ExpenseController extends BaseController {
       startEndMonth: params.startEndMonth,
     };
 
-    const updatedFrequency = await Frequency.findByIdAndUpdate({ _id: updatedExpense?.frequency }, frequency);
+    const updatedFrequency = await Frequency.findByIdAndUpdate(
+      { _id: updatedExpense?.frequency },
+      frequency
+    );
     this.ok({ expense: updatedExpense });
   }
 
   protected updateParams() {
     return Joi.object({
       title: Joi.string().required(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .required(),
       from: Joi.date(),
       until: Joi.date(),
       qty: Joi.number().min(0).required(),
-      category: Joi.string().required(),
       frequencyType: Joi.string(),
       day: Joi.number().allow(null),
       weekDay: Joi.string().allow(null),
