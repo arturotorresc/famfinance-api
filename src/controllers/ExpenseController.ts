@@ -33,13 +33,12 @@ export default class ExpenseController extends BaseController {
     });
     const savedFrequency = await frequency.save();
 
-    const category = (params.category as string).trim().toLowerCase();
     const expense = new Expense({
       title: params.title.trim(),
       from: params.from,
       until: params.until,
       qty: params.qty,
-      category,
+      category: params.category,
       frequency: savedFrequency._id,
       belongsTo: user!._id,
     });
@@ -129,13 +128,12 @@ export default class ExpenseController extends BaseController {
     }
     const user = this.cu.getUser();
 
-    const category = (params.category as string).trim().toLowerCase();
     const expense = {
       title: params.title.trim(),
       from: params.from,
       until: params.until,
       qty: params.qty,
-      category,
+      category: params.category,
       belongsTo: user!._id,
     };
 

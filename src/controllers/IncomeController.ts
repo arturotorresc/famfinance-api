@@ -34,13 +34,12 @@ export default class IncomeController extends BaseController {
 
     const savedFrequency = await frequency.save();
 
-    const category = (params.category as string).trim().toLowerCase();
     const income = new Income({
       title: params.title.trim(),
       from: params.from,
       until: params.until,
       qty: params.qty,
-      category,
+      category: params.category,
       frequency: savedFrequency._id,
       belongsTo: user!._id,
     });
@@ -132,13 +131,12 @@ export default class IncomeController extends BaseController {
     }
     const user = this.cu.getUser();
 
-    const category = (params.category as string).trim().toLowerCase();
     const income = {
       title: params.title.trim(),
       from: params.from,
       until: params.until,
       qty: params.qty,
-      category,
+      category: params.category,
       belongsTo: user!._id,
     };
 
