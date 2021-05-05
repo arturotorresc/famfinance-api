@@ -105,7 +105,18 @@ export default class IncomeController extends BaseController {
   }
 
   protected readParams() {
-    return Joi.object({});
+    return Joi.object({
+      title: Joi.string().optional(),
+      category: Joi.string()
+        .valid(...Object.keys(TransactionCategoryEnum))
+        .optional(),
+      from: Joi.date().optional(),
+      until: Joi.date().optional(),
+      qty: Joi.number().optional(),
+      weekDay: Joi.number().min(1).max(7).optional(),
+      repeatsEvery: Joi.number().min(1).optional(),
+      id: Joi.string().optional(),
+    });
   }
 
   protected async update() {
