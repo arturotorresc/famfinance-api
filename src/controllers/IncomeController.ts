@@ -80,11 +80,21 @@ export default class IncomeController extends BaseController {
       return this.notFound();
     }
     const belongsToArray = family.members.map((userId) => {
-      return {
-        belongsTo: userId,
-      };
+      return Object.assign(
+        {},
+        {
+          belongsTo: userId,
+        },
+        params.category ? { category: params.category } : null
+      );
     });
-    belongsToArray.push({ belongsTo: family.admin });
+    belongsToArray.push(
+      Object.assign(
+        {},
+        { belongsTo: family.admin },
+        params.category ? { category: params.category } : null
+      )
+    );
     let query: any = {
       $or: belongsToArray,
     };
@@ -92,7 +102,7 @@ export default class IncomeController extends BaseController {
       query = { $and: [{ _id: params.id }, { $or: belongsToArray }] };
     }
     Income.find(query)
-      .populate('frequency')
+      .populate("frequency")
       .exec()
       .then((results) => {
         return this.res.status(200).json({
@@ -213,7 +223,7 @@ export default class IncomeController extends BaseController {
     const income = await Income.findOneAndDelete({ _id: id });
     if (income) {
       console.log(`Income ${income._id} deleted.`);
-      await Frequency.findOneAndDelete({_id: income.frequency})
+      await Frequency.findOneAndDelete({ _id: income.frequency });
     } else {
       console.log(`No Income with that ID`);
     }

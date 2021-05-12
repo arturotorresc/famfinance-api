@@ -78,11 +78,19 @@ export default class ExpenseController extends BaseController {
       return this.notFound();
     }
     const belongsToArray = family.members.map((userId) => {
-      return {
-        belongsTo: userId,
-      };
+      return Object.assign(
+        {},
+        { belongsTo: userId },
+        params.category ? { category: params.category } : null
+      );
     });
-    belongsToArray.push({ belongsTo: family.admin });
+    belongsToArray.push(
+      Object.assign(
+        {},
+        { belongsTo: family.admin },
+        params.category ? { category: params.category } : null
+      )
+    );
     let query: any = {
       $or: belongsToArray,
     };
@@ -90,7 +98,7 @@ export default class ExpenseController extends BaseController {
       query = { $and: [{ _id: params.id }, { $or: belongsToArray }] };
     }
     Expense.find(query)
-      .populate('frequency')
+      .populate("frequency")
       .exec()
       .then((results) => {
         return this.res.status(200).json({
@@ -214,7 +222,7 @@ export default class ExpenseController extends BaseController {
     const expense = await Expense.findOneAndDelete({ _id: id });
     if (expense) {
       console.log(`Expense ${expense._id} deleted.`);
-      await Frequency.findOneAndDelete({_id: expense.frequency})
+      await Frequency.findOneAndDelete({ _id: expense.frequency });
     } else {
       console.log(`No Expense with that ID`);
     }
