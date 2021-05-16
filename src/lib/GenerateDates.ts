@@ -1,233 +1,246 @@
 import moment from "moment";
+import { DAYS_OF_THE_WEEK, MONTHS, FrequencyType } from "../types/dates.type";
 
 export class GenerateDates {
-
-  constructor(){}
-
-  protected async createMonthsArray(months: any) {
-    let answer = [0,0,0,0,0,0,0,0,0,0,0,0]
-
-    for(let i = 0; i < months.length; i++){
-      let month = months[i].toLowerCase();
-      switch(month) {
-        case "enero":
-          answer[0] = 1;
-          break;
-        case "febrero":
-          answer[1] = 1;
-          break;
-        case "marzo":
-          answer[2] = 1;
-          break;
-        case "abril":
-          answer[3] = 1;
-          break;
-        case "mayo":
-          answer[4] = 1;
-          break;
-        case "junio":
-          answer[5] = 1;
-          break;
-        case "julio":
-          answer[6] = 1;
-          break;
-        case "agosto":
-          answer[7] = 1;
-          break;
-        case "septiembre":
-          answer[8] = 1;
-          break;
-        case "octubre":
-          answer[9] = 1;
-          break;
-        case "noviembre":
-          answer[10] = 1;
-          break;
-        default:
-          answer[11] = 1;
-          break;
+  protected createMonthsArray(months: string[]): number[] {
+    let answer = new Array(12).fill(0);
+    for (let i = 0; i < months.length; i++) {
+      let month = months[i];
+      for (let j = 0; j < MONTHS.length; j++) {
+        if (month == MONTHS[j]) answer[j] = 1;
       }
     }
-
     return answer;
   }
 
-  protected async sameWeekDayRepeatForWeeks(transaction: any, startDate: any, limitDate: any): Promise<any>{
-    let currDate = moment(transaction.from), untilDate, weeksRepeat = transaction.frequency.weeksRepeat;
-    let dates = new Array();
+  protected sameWeekDayRepeatForWeeks(
+    transaction: any,
+    startDate: moment.Moment,
+    limitDate: moment.Moment
+  ): { [name: string]: any } {
+    let currDate = moment(transaction.from);
+    let untilDate =
+      transaction.until === ""
+        ? moment().add(100, "year")
+        : moment(transaction.until);
+    let weekDay = transaction.frequency.weekDay;
+    let weeksRepeat = transaction.frequency.weeksRepeat;
+    let dates = [];
 
-    if(transaction.until === "") {
-      untilDate = moment().add(100, "year");
-    } else {
-      untilDate = moment(transaction.until);
+    let idx = 0;
+    while (DAYS_OF_THE_WEEK[idx].toString() != weekDay) {
+      idx += 1;
     }
 
-    while((currDate.isBefore(limitDate) || currDate.isSame(limitDate)) && (currDate.isBefore(untilDate) || currDate.isSame(untilDate))) {
-      if(startDate.isBefore(currDate) || startDate.isSame(currDate)) {
-        dates.push(currDate);
+    if (currDate.weekday() > idx) {
+      currDate = currDate.add(1, "week").startOf("week").add(idx, "day");
+    } else {
+      currDate = currDate.startOf("week").add(idx, "day");
+    }
+
+    while (
+      currDate.isSameOrBefore(limitDate) &&
+      currDate.isSameOrBefore(untilDate)
+    ) {
+      if (startDate.isSameOrBefore(currDate)) {
+        dates.push(moment(currDate));
       }
       currDate = moment(currDate).add(weeksRepeat, "weeks");
     }
-    return {"dates": dates, "qty": transaction.qty};
+    return { dates: dates, qty: transaction.qty };
   }
 
-  protected async sameDayRepeatMonths(transaction: any, startDate: any, limitDate: any): Promise<any>{
+  protected sameDayRepeatMonths(
+    transaction: any,
+    startDate: moment.Moment,
+    limitDate: moment.Moment
+  ): { [name: string]: any } {
+    let day = transaction.frequency.day;
+    let currDate = moment(transaction.from);
+    let untilDate =
+      transaction.until === ""
+        ? moment().add(100, "year")
+        : moment(transaction.until);
+    let monthsRepeat = transaction.frequency.monthsRepeat;
+    let dates = [];
 
-    let day = transaction.frequency.day, currDate = moment(transaction.from), untilDate, monthsRepeat = transaction.frequency.monthsRepeat;
-    let dates = new Array();
-
-    if(transaction.until === "") {
-      untilDate = moment().add(100, "year");
-    } else {
-      untilDate = moment(transaction.until);
-    }
-
-    if(currDate.get("day") > day) {
+    if (currDate.get("day") > day) {
       currDate = currDate.add(1, "month");
     }
 
-    currDate.set({day: day, month: currDate.get("month"), year: currDate.get("year")});
-
-    while((currDate.isBefore(limitDate) || currDate.isSame(limitDate)) && (currDate.isBefore(untilDate) || currDate.isSame(untilDate))) {
-
-      if(startDate.isBefore(currDate) || startDate.isSame(currDate)) {
+    currDate = currDate.set("date", day);
+    while (
+      currDate.isSameOrBefore(limitDate) &&
+      currDate.isSameOrBefore(untilDate)
+    ) {
+      if (startDate.isSameOrBefore(currDate)) {
         dates.push(currDate);
       }
       currDate = moment(currDate).add(monthsRepeat, "month");
     }
-    return {"dates": dates, "qty": transaction.qty};
+
+    return { dates: dates, qty: transaction.qty };
   }
 
-  protected async startEndDayRepeatMonths(transaction: any, startDate: any, limitDate: any): Promise<any>{
+  protected startEndDayRepeatMonths(
+    transaction: any,
+    startDate: moment.Moment,
+    limitDate: moment.Moment
+  ): { [name: string]: any } {
+    let currDate = moment(transaction.from);
+    let type = transaction.frequency.startEndMonth.toLowerCase();
+    let monthsRepeat = transaction.frequency.monthsRepeat;
+    let untilDate =
+      transaction.until === ""
+        ? moment().add(100, "year")
+        : moment(transaction.until);
+    let dates = [];
 
-    let currDate = moment(transaction.from), type = transaction.frequency.startEndMonth.toLowerCase(), monthsRepeat = transaction.frequency.monthsRepeat;
-    let untilDate, dates = new Array();
-
-    if(transaction.until === "") {
-      untilDate = moment().add(100, "year");
-    } else {
-      untilDate = moment(transaction.until);
-    }
-
-    if(type === "end") {
-      currDate = currDate.endOf("month")
-    } else if(type === "start" && currDate.get("day") > 1) {
+    if (type === "fin") {
+      currDate = currDate.endOf("month");
+    } else if (type === "inicio" && currDate.get("day") > 1) {
       currDate = currDate.add(1, "m").startOf("month");
     }
 
-    while((currDate.isBefore(limitDate) || currDate.isSame(limitDate)) && (currDate.isBefore(untilDate) || currDate.isSame(untilDate))) {
-
-      if(startDate.isBefore(currDate) || startDate.isSame(currDate)) {
-        dates.push(currDate);
+    while (
+      currDate.isSameOrBefore(limitDate) &&
+      currDate.isSameOrBefore(untilDate)
+    ) {
+      if (startDate.isSameOrBefore(currDate)) {
+        dates.push(moment(currDate));
       }
 
-      if(type === "start") {
+      if (type === "inicio") {
         currDate = moment(currDate).add(monthsRepeat, "months");
       } else {
-        currDate = currDate.add(monthsRepeat, "months").endOf("month");
+        currDate = currDate
+          .startOf("month")
+          .add(monthsRepeat, "months")
+          .endOf("month");
       }
     }
 
-    return {"dates": dates, "qty": transaction.qty};
+    return { dates: dates, qty: transaction.qty };
   }
 
-  protected async sameDaySelectedMonths(transaction: any, startDate: any, limitDate: any): Promise<any>{
+  protected sameDaySelectedMonths(
+    transaction: any,
+    startDate: moment.Moment,
+    limitDate: moment.Moment
+  ): { [name: string]: any } {
+    let months;
+    let day = transaction.frequency.day;
+    let currDate = moment(transaction.from);
+    let untilDate =
+      transaction.until === ""
+        ? moment().add(100, "year")
+        : moment(transaction.until);
+    let dates = [];
 
-    let months, day = transaction.frequency.day, currDate = moment(transaction.from), untilDate;
-    let dates = new Array();
+    months = this.createMonthsArray(transaction.frequency.months);
 
-    if(transaction.until === "") {
-      untilDate = moment().add(100, "year");
-    } else {
-      untilDate = moment(transaction.until);
-    }
-
-    months = await this.createMonthsArray(transaction.frequency.months);
-
-    if(currDate.format("D") > day) {
+    if (currDate.format("D") > day) {
       currDate = currDate.add(1, "month");
     }
 
-    currDate = currDate.set("date", day).set("month", currDate.get("month")).set("year", currDate.get("year"))
+    currDate = currDate.set("date", day);
 
-    while((currDate.isBefore(limitDate) || currDate.isSame(limitDate)) && (currDate.isBefore(untilDate) || currDate.isSame(untilDate))) {
-      if((startDate.isBefore(currDate) || startDate.isSame(currDate) ) && months[currDate.get("month")]) {
+    while (
+      currDate.isSameOrBefore(limitDate) &&
+      currDate.isSameOrBefore(untilDate)
+    ) {
+      if (startDate.isSameOrBefore(currDate) && months[currDate.get("month")]) {
         dates.push(currDate);
       }
       currDate = moment(currDate).add(1, "month");
     }
 
-    return {"dates": dates, "qty": transaction.qty};
+    return { dates: dates, qty: transaction.qty };
   }
 
-  protected async startEndDaySelectedMonths(transaction: any, startDate: any, limitDate: any): Promise<any>{
+  protected startEndDaySelectedMonths(
+    transaction: any,
+    startDate: moment.Moment,
+    limitDate: moment.Moment
+  ): { [name: string]: any } {
+    let months = new Array(12).fill(0);
+    let currDate = moment(transaction.from);
+    let type = transaction.frequency.startEndMonth.toLowerCase();
+    let untilDate =
+      transaction.until === ""
+        ? moment().add(100, "year")
+        : moment(transaction.until);
+    let dates = [];
 
-    let months = [0,0,0,0,0,0,0,0,0,0,0,0], currDate = moment(transaction.from), type = transaction.frequency.startEndMonth.toLowerCase();
-    let untilDate, dates = new Array();
+    months = this.createMonthsArray(transaction.frequency.months);
 
-    if(transaction.until === "") {
-      untilDate = moment().add(100, "year");
-    } else {
-      untilDate = moment(transaction.until);
+    if (type === "inicio") {
+      currDate = currDate.endOf("month");
     }
 
-    months = await this.createMonthsArray(transaction.frequency.months);
-
-    if(type === "end") {
-      currDate = currDate.endOf("month")
-    }
-
-    while((currDate.isBefore(limitDate) || currDate.isSame(limitDate)) && (currDate.isBefore(untilDate) || currDate.isSame(untilDate))) {
-
-      if((startDate.isBefore(currDate) || startDate.isSame(currDate) ) && months[currDate.get("month")]) {
-        dates.push(currDate);
+    while (
+      currDate.isSameOrBefore(limitDate) &&
+      currDate.isSameOrBefore(untilDate)
+    ) {
+      if (startDate.isSameOrBefore(currDate) && months[currDate.get("month")]) {
+        dates.push(moment(currDate));
       }
 
-      if(type === "start") {
+      if (type === "fin") {
         currDate = moment(currDate).add(1, "month");
       } else {
         currDate = currDate.add(1, "month").endOf("month");
       }
     }
 
-    return {"dates": dates, "qty": transaction.qty};
+    return { dates: dates, qty: transaction.qty };
   }
 
-  protected async oneTime(transaction: any, startDate: any, limitDate: any): Promise<any>{
-    let dates = new Array(), currDate = moment(transaction.from), untilDate;
+  protected oneTime(
+    transaction: any,
+    startDate: moment.Moment,
+    limitDate: moment.Moment
+  ): { [name: string]: any } {
+    let dates = [];
+    let currDate = moment(transaction.from);
+    let untilDate =
+      transaction.until === ""
+        ? moment().add(100, "year")
+        : moment(transaction.until);
 
-    if(transaction.until === "") {
-      untilDate = moment().add(100, "year");
-    } else {
-      untilDate = moment(transaction.until);
-    }
-
-    if((currDate.isBefore(limitDate) || currDate.isSame(limitDate)) && (currDate.isBefore(untilDate) || currDate.isSame(untilDate))) {
-      if(startDate.isBefore(currDate) || startDate.isSame(currDate)) {
+    if (
+      currDate.isSameOrBefore(limitDate) &&
+      currDate.isSameOrBefore(untilDate)
+    ) {
+      if (startDate.isSameOrBefore(currDate)) {
         dates.push(currDate);
       }
     }
 
-    return dates;
+    return { dates: dates, qty: transaction.qty };
   }
 
-  async generateDatesWithinIntervals(transaction: any, startDate: any, limitDate: any): Promise<any[]> {
+  generateDatesWithinIntervals(
+    transaction: any,
+    startDate: moment.Moment,
+    limitDate: moment.Moment
+  ): { [name: string]: any } {
     let frequencyType = transaction.frequency.frequencyType;
 
-    if(frequencyType === "SameWeekDayRepeatForWeeks") {
-      return await this.sameWeekDayRepeatForWeeks(transaction, startDate, limitDate);
-    } else if(frequencyType === "StartEndDayRepeatMonths"){
-      return await this.startEndDayRepeatMonths(transaction, startDate, limitDate);
-    } else if(frequencyType === "StartEndDaySelectedMonths"){
-      return await this.startEndDaySelectedMonths(transaction, startDate, limitDate);
-    } else if(frequencyType === "SameDayRepeatMonths"){
-      return await this.sameDayRepeatMonths(transaction, startDate, limitDate);
-    } else if(frequencyType === "SameDaySelectedMonths") {
-      return await this.sameDaySelectedMonths(transaction, startDate, limitDate);
-    } else if(frequencyType === "OneTime") {
-      return await this.oneTime(transaction, startDate, limitDate);
+    if (frequencyType == FrequencyType.SameWeekDayRepeatForWeeks) {
+      return this.sameWeekDayRepeatForWeeks(transaction, startDate, limitDate);
+    } else if (frequencyType == FrequencyType.StartEndDayRepeatMonths) {
+      return this.startEndDayRepeatMonths(transaction, startDate, limitDate);
+    } else if (frequencyType == FrequencyType.StartEndDaySelectedMonths) {
+      return this.startEndDaySelectedMonths(transaction, startDate, limitDate);
+    } else if (frequencyType == FrequencyType.SameDayRepeatMonths) {
+      return this.sameDayRepeatMonths(transaction, startDate, limitDate);
+    } else if (frequencyType == FrequencyType.SameDaySelectedMonths) {
+      return this.sameDaySelectedMonths(transaction, startDate, limitDate);
+    } else if (frequencyType == FrequencyType.OneTime) {
+      return this.oneTime(transaction, startDate, limitDate);
     }
-    return [];
-  }
 
+    return {};
+  }
 }
