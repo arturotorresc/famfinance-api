@@ -1,9 +1,7 @@
 import BaseController, { IArgs } from "./BaseController";
 import Income from "../models/income";
 import Expense from "../models/expense";
-import Frequency from "../models/frequency";
 import Joi from "joi";
-import moment from "moment";
 import { WeeklyStats } from "../lib/WeeklyStats";
 import { MonthlyStats } from "../lib/MonthlyStats";
 import { YearlyStats } from "../lib/YearlyStats";
@@ -14,14 +12,12 @@ const years = 6;
 interface IStatsArgs extends IArgs {}
 
 export default class StatsController extends BaseController {
-
   constructor(args: IStatsArgs) {
     super(args);
   }
 
   protected async weekly() {
     const user = this.cu.getUser();
-    const params = this.getParams();
 
     if (!user) {
       return this.notAuthorized();
@@ -34,16 +30,19 @@ export default class StatsController extends BaseController {
       .populate("frequency")
       .exec();
 
-    let weeklyStats = new WeeklyStats(incomes, expenses);
+    let length =
+      this.req.query.length && typeof this.req.query.length == "string"
+        ? parseInt(this.req.query.length)
+        : 6;
+    let weeklyStats = new WeeklyStats(incomes, expenses, length);
 
     return this.res.status(200).json({
-      weeklyStats: await weeklyStats.stats(),
+      weeklyStats: weeklyStats.stats(),
     });
   }
 
   protected async monthly() {
     const user = this.cu.getUser();
-    const params = this.getParams();
 
     if (!user) {
       return this.notAuthorized();
@@ -65,7 +64,6 @@ export default class StatsController extends BaseController {
 
   protected async yearly() {
     const user = this.cu.getUser();
-    const params = this.getParams();
 
     if (!user) {
       return this.notAuthorized();
@@ -88,6 +86,7 @@ export default class StatsController extends BaseController {
   protected weeklyParams() {
     return Joi.object({
       id: Joi.string().optional(),
+      length: Joi.string().optional(),
     });
   }
 

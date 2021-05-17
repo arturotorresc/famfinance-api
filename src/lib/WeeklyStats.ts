@@ -1,45 +1,36 @@
-import Income from "../models/income";
-import Expense from "../models/expense";
-import Frequency from "../models/frequency";
-import Joi from "joi";
 import moment from "moment";
 import { GenerateDates } from "./GenerateDates";
 
-
 export class WeeklyStats {
-
   noOfWeeks = 6;
-  incomes = null;
-  expenses = null;
+  incomes: any[] = [];
+  expenses: any[] = [];
   generateDates = new GenerateDates();
 
-  constructor(incomes: any, expenses: any){
+  constructor(incomes: any, expenses: any, length: number) {
     this.incomes = incomes;
     this.expenses = expenses;
-  };
-
-  protected async getLimitDateWeekly(): Promise<any> {
-
-    let lastDay = moment().day(7);
-
-    for(let i = 1; i < this.noOfWeeks; i++) {
-      lastDay = lastDay.add(1, "w");
-    }
-
-    return lastDay;
+    this.noOfWeeks = length;
   }
 
-  protected async calculateQtyPerWeek(transaction: any): Promise<any> {
+  protected getLimitDateWeekly(): any {
+    return moment().day(7).add(this.noOfWeeks, "w");
+  }
 
-    let datesIndex = 0, intervalIndex = 0, dates = transaction.dates, qty = transaction.qty, ans = new Array(this.noOfWeeks);
-    let intervalStart = moment().day(1), intervalEnd = moment().day(7);
+  protected calculateQtyPerWeek(transaction: any): number[] {
+    let datesIndex = 0;
+    let intervalIndex = 0;
+    let dates = transaction.dates;
+    let qty = transaction.qty;
+    let ans = new Array(this.noOfWeeks).fill(0);
+    let intervalStart = moment().day(1);
+    let intervalEnd = moment().day(7);
 
-    for(let i = 0; i < this.noOfWeeks; i++) {
-      ans[i] = 0;
-    }
-
-    while(datesIndex < dates.length) {
-      if(dates[datesIndex].isBefore(intervalEnd) || dates[datesIndex].isSame(intervalEnd)) {
+    while (datesIndex < dates.length) {
+      if (
+        dates[datesIndex].isBefore(intervalEnd) ||
+        dates[datesIndex].isSame(intervalEnd)
+      ) {
         ans[intervalIndex] += qty;
         datesIndex++;
       } else {
@@ -51,29 +42,27 @@ export class WeeklyStats {
     return ans;
   }
 
-  async weeklyStats(
-    transactions: any,
-    type: any
-  ): Promise<number[]> {
-
-    let answer = new Array(this.noOfWeeks), limitDate = await this.getLimitDateWeekly(), nextDates = [];
-
-    for(let i = 0; i < this.noOfWeeks; i++){
-      answer[i] = 0
-    }
+  weeklyStats(type: string): number[] {
+    let transactions = type == "income" ? this.incomes : this.expenses;
+    let answer = new Array(this.noOfWeeks).fill(0);
+    let limitDate = this.getLimitDateWeekly();
+    let nextDates: { [name: string]: any }[] = [];
 
     for (let i = 0; i < transactions.length; i++) {
-      nextDates.push(await this.generateDates.generateDatesWithinIntervals(transactions[i], moment().day(1), limitDate));
+      let tmp = this.generateDates.generateDatesWithinIntervals(
+        transactions[i],
+        moment().day(1),
+        limitDate
+      );
+      nextDates.push(tmp);
     }
 
-    for(let i = 0; i < nextDates.length; i++) {
-      let qtyPerWeek = await this.calculateQtyPerWeek(nextDates[i]);
+    for (let i = 0; i < nextDates.length; i++) {
+      if (nextDates[i]["dates"].length > 0) {
+        let qtyPerWeek = this.calculateQtyPerWeek(nextDates[i]);
 
-      for(let j = 0; j < this.noOfWeeks; j++) {
-        if(type === "income") {
-          answer[j] = answer[j] + qtyPerWeek[j]
-        } else {
-          answer[j] = answer[j] - qtyPerWeek[j]
+        for (let j = 0; j < this.noOfWeeks; j++) {
+          answer[j] += type == "income" ? qtyPerWeek[j] : -qtyPerWeek[j];
         }
       }
     }
@@ -81,16 +70,16 @@ export class WeeklyStats {
     return answer;
   }
 
-  async stats(): Promise<any[]> {
-    let weeklyIncome = await this.weeklyStats(this.incomes, "income");
-    let weeklyExpense = await this.weeklyStats(this.expenses, "expense");
+  stats(): any[] {
+    let weeklyIncome = this.weeklyStats("income");
+    let weeklyExpense = this.weeklyStats("expense");
 
-    let stats = new Array(this.noOfWeeks);
+    let stats = new Array(this.noOfWeeks).fill(0);
 
     for (let i = 0; i < this.noOfWeeks; i++) {
       stats[i] = weeklyIncome[i] + weeklyExpense[i];
     }
 
-    return stats
+    return stats;
   }
 }
