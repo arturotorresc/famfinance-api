@@ -6,9 +6,6 @@ import { WeeklyStats } from "../lib/WeeklyStats";
 import { MonthlyStats } from "../lib/MonthlyStats";
 import { YearlyStats } from "../lib/YearlyStats";
 
-const weeks = 6;
-const months = 6;
-const years = 6;
 interface IStatsArgs extends IArgs {}
 
 export default class StatsController extends BaseController {
@@ -33,7 +30,7 @@ export default class StatsController extends BaseController {
     let length =
       this.req.query.length && typeof this.req.query.length == "string"
         ? parseInt(this.req.query.length)
-        : 6;
+        : 10;
     let weeklyStats = new WeeklyStats(incomes, expenses, length);
 
     return this.res.status(200).json({
@@ -58,7 +55,7 @@ export default class StatsController extends BaseController {
     let monthlyStats = new MonthlyStats(incomes, expenses);
 
     return this.res.status(200).json({
-      monthlyStats: await monthlyStats.stats(),
+      monthlyStats: monthlyStats.stats(),
     });
   }
 
@@ -79,13 +76,12 @@ export default class StatsController extends BaseController {
     let yearlyStats = new YearlyStats(incomes, expenses);
 
     return this.res.status(200).json({
-      monthlyStats: await yearlyStats.stats(),
+      yearlyStats: yearlyStats.stats(),
     });
   }
 
   protected weeklyParams() {
     return Joi.object({
-      id: Joi.string().optional(),
       length: Joi.string().optional(),
     });
   }
