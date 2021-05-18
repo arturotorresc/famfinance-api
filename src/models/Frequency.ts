@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
-import mongodb from "mongodb";
-
-const { Schema } = mongoose;
 
 export enum StartEndMonthEnum {
   START = "Inicio",
   END = "Fin",
 }
 
-interface IFrequencyDocument extends mongoose.Document {
+export interface IFrequencyDocument extends mongoose.Document {
   frequencyType: String;
   day: Number;
   weekDay: String;
@@ -18,42 +15,49 @@ interface IFrequencyDocument extends mongoose.Document {
   startEndMonth: String;
 }
 
-const frequencySchema = new Schema({
+const { Schema } = mongoose;
+
+const frequencySchema = new Schema(
+  {
     frequencyType: {
       type: String,
-      required: true
+      required: true,
     },
     day: {
       type: Schema.Types.Mixed,
-      required: false
+      required: false,
     },
     weekDay: {
       type: Schema.Types.Mixed,
-      required: false
+      required: false,
     },
     weeksRepeat: {
       type: Schema.Types.Mixed,
-      required: false
+      required: false,
     },
     monthsRepeat: {
       type: Schema.Types.Mixed,
-      required: false
+      required: false,
     },
     months: {
       type: Schema.Types.Mixed,
-      required: false
+      required: false,
     },
     startEndMonth: {
       type: Schema.Types.Mixed,
       enum: [StartEndMonthEnum.START, StartEndMonthEnum.END],
       required: false,
-    }
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const Frequency = mongoose.model<IFrequencyDocument>("Frequency", frequencySchema, "Frequency");
+const Frequency = mongoose.model<IFrequencyDocument>(
+  "Frequency",
+  frequencySchema,
+  "Frequency"
+);
 
 export default Frequency;

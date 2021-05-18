@@ -32,6 +32,15 @@ router.get("/expense", isAuthenticated(), async (req, res) => {
   await controller.handleRequest();
 });
 
+router.get("/expense/history", isAuthenticated(), async (req, res) => {
+  const controller = new TransactionHistoryController({
+    req,
+    res,
+    action: "expenseHistory",
+  });
+  await controller.handleRequest();
+});
+
 router.get("/expense/:id", isAuthenticated(), async (req, res) => {
   const controller = new ExpenseController({
     req,
@@ -46,15 +55,6 @@ router.delete("/expense/:id", isAuthenticated(), async (req, res) => {
     req,
     res,
     action: "destroy",
-  });
-  await controller.handleRequest();
-});
-
-router.get("/expense/history", isAuthenticated(), async (req, res) => {
-  const controller = new TransactionHistoryController({
-    req,
-    res,
-    action: "expenseHistory",
   });
   await controller.handleRequest();
 });
