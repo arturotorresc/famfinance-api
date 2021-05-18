@@ -17,7 +17,8 @@ import {
   goalRouter,
   sessionRouter,
   policyRouter,
-  statsRouter
+  statsRouter,
+  savingsRouter,
 } from "./routes";
 
 export const main = async () => {
@@ -73,5 +74,6 @@ export const main = async () => {
   app.use("/api", sessionRouter);
   app.use("/api", policyRouter);
   app.use("/api", statsRouter);
+  app.use("/api", savingsRouter);
   return app;
 };

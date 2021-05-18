@@ -11,3 +11,4 @@ export { router as goalRouter } from "./goal.route";
 export { router as sessionRouter } from "./session.route";
 export { router as policyRouter } from "./policy.route";
 export { router as statsRouter} from "./stats.route";
+export { router as savingsRouter } from "./savings.route";
