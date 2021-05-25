@@ -1,6 +1,6 @@
 import BaseController, { IArgs } from "./BaseController";
 import Income from "../models/income";
-import Frequency from "../models/frequency";
+import Frequency from "../models/Frequency";
 import { AllowedActionsEnum } from "../models/policy";
 import { TransactionCategoryEnum } from "../types/transactionCategory.type";
 import Joi from "joi";
