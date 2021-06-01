@@ -33,6 +33,7 @@ function computePlanRequirements(stats: any[], goals: any[]): number[] {
     } else {
       currentProfit += stats[statsIdx];
       statsIdx += 1;
+      weekEnd = weekEnd.add(1, "weeks");
     }
   }
   curGoalIdx = ans.length;
