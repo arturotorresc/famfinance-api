@@ -18,7 +18,7 @@ export enum AllowedActionsEnum {
 /**
  * The available properties in the policy model
  */
-interface IPolicyDocument extends mongoose.Document {
+export interface IPolicyDocument extends mongoose.Document {
   belongsTo: mongodb.ObjectID;
   permissions: AllowedActionsEnum[];
 }

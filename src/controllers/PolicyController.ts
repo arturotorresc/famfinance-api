@@ -1,9 +1,11 @@
 import BaseController, { IArgs } from "./BaseController";
 import Joi from "joi";
-import User from "../models/user";
-import Family from "../models/family";
-import Policy from "../models/policy";
 import { AllowedActionsEnum } from "../models/policy";
+import {
+  checkIfUserBelongsToFamily,
+  findPolicyOfUser,
+  findUserById,
+} from "../DBAccessLayer";
 
 interface IPolicyArgs extends IArgs {}
 
@@ -22,20 +24,20 @@ export default class PolicyController extends BaseController {
     }
     try {
       const params = this.getParams();
-      const member = await User.findById(params.memberId);
+      const member = await findUserById(params.memberId);
       if (!member) {
         return this.notFound();
       }
-      const belongsToFamily = await Family.exists({
-        admin: user._id,
-        members: member._id,
-      });
+      const belongsToFamily = await checkIfUserBelongsToFamily(
+        user._id,
+        member._id
+      );
       if (!belongsToFamily) {
         return this.notAuthorized(
           "You can only modify the permissions of your family members"
         );
       }
-      const policy = await Policy.findOne({ belongsTo: member._id });
+      const policy = await findPolicyOfUser(member._id);
       if (!policy) {
         throw Error("No Policy associated with member!");
       }
@@ -73,20 +75,20 @@ export default class PolicyController extends BaseController {
     }
     try {
       const params = this.getParams();
-      const member = await User.findById(params.memberId);
+      const member = await findUserById(params.memberId);
       if (!member) {
         return this.notFound();
       }
-      const belongsToFamily = await Family.exists({
-        admin: user._id,
-        members: member._id,
-      });
+      const belongsToFamily = await checkIfUserBelongsToFamily(
+        user._id,
+        member._id
+      );
       if (!belongsToFamily) {
         return this.notAuthorized(
           "You can only modify the permissions of your family members"
         );
       }
-      const policy = await Policy.findOne({ belongsTo: member._id });
+      const policy = await findPolicyOfUser(member._id);
       if (!policy) {
         throw Error("No Policy associated with member!");
       }

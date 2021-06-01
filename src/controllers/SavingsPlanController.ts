@@ -1,10 +1,12 @@
 import BaseController, { IArgs } from "./BaseController";
-import Goal from "../models/goal";
-import Income from "../models/income";
-import Expense from "../models/expense";
 import { WeeklyStats } from "../lib/WeeklyStats";
 import Joi from "joi";
 import moment from "moment";
+import {
+  findFamilyExpenses,
+  findFamilyGoals,
+  findFamilyIncomes,
+} from "../DBAccessLayer";
 
 interface ISavingsPlanArgs extends IArgs {}
 
@@ -151,12 +153,17 @@ export default class SavingsPlanController extends BaseController {
       return this.notAuthorized();
     }
 
-    const incomes = await Income.find({ belongsTo: user.id })
-      .populate("frequency")
-      .exec();
-    const expenses = await Expense.find({ belongsTo: user.id })
-      .populate("frequency")
-      .exec();
+    const family = await this.cu.getFamily();
+    if (!family) {
+      return this.notAuthorized();
+    }
+    const memberIds = [family.admin];
+    family.members.forEach((memberId) => {
+      memberIds.push(memberId);
+    });
+
+    const incomes = await findFamilyIncomes(memberIds);
+    const expenses = await findFamilyExpenses(memberIds);
 
     let length =
       this.req.query.length && typeof this.req.query.length == "string"
@@ -165,7 +172,7 @@ export default class SavingsPlanController extends BaseController {
     let weeklyStats = new WeeklyStats(incomes, expenses, length);
 
     let stats = weeklyStats.stats();
-    let goals: any[] = await Goal.find({ belongsTo: user.id }).exec();
+    let goals: any[] = await findFamilyGoals(memberIds);
     let curWeek = moment().subtract(1, "week").endOf("week");
     for (let idx = 0; idx < stats.length; idx++) {
       if (stats[idx] < 0) {

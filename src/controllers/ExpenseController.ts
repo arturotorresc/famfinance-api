@@ -1,9 +1,17 @@
 import BaseController, { IArgs } from "./BaseController";
-import Expense from "../models/expense";
-import Frequency from "../models/Frequency";
 import { AllowedActionsEnum } from "../models/policy";
 import { TransactionCategoryEnum } from "../types/transactionCategory.type";
 import Joi from "joi";
+import {
+  createExpense,
+  createFrequency,
+  updateExpenseById,
+  findExpenseById,
+  deleteExpenseById,
+  updateFrequencyForExpenseById,
+  deleteFrequencyById,
+  findFamilyExpensesByFamilyAndCategory,
+} from "../DBAccessLayer";
 
 interface IExpenseArgs extends IArgs {}
 
@@ -22,7 +30,7 @@ export default class ExpenseController extends BaseController {
     }
     const user = this.cu.getUser();
 
-    const frequency = new Frequency({
+    const savedFrequency = await createFrequency({
       frequencyType: params.frequencyType,
       day: params.day,
       weekDay: params.weekDay,
@@ -31,9 +39,8 @@ export default class ExpenseController extends BaseController {
       months: params.months,
       startEndMonth: params.startEndMonth,
     });
-    const savedFrequency = await frequency.save();
 
-    const expense = new Expense({
+    const savedExpense = await createExpense({
       title: params.title.trim(),
       from: params.from,
       until: params.until,
@@ -42,7 +49,6 @@ export default class ExpenseController extends BaseController {
       frequency: savedFrequency._id,
       belongsTo: user!._id,
     });
-    const savedExpense = await expense.save();
     this.ok({ expense: savedExpense });
   }
 
@@ -77,37 +83,14 @@ export default class ExpenseController extends BaseController {
       console.log("No family was found for this user!");
       return this.notFound();
     }
-    const belongsToArray = family.members.map((userId) => {
-      return Object.assign(
-        {},
-        { belongsTo: userId },
-        params.category ? { category: params.category } : null
-      );
-    });
-    belongsToArray.push(
-      Object.assign(
-        {},
-        { belongsTo: family.admin },
-        params.category ? { category: params.category } : null
-      )
+    const results = await findFamilyExpensesByFamilyAndCategory(
+      params.id,
+      family,
+      params.category
     );
-    let query: any = {
-      $or: belongsToArray,
-    };
-    if (params.id) {
-      query = { $and: [{ _id: params.id }, { $or: belongsToArray }] };
-    }
-    Expense.find(query)
-      .populate("frequency")
-      .exec()
-      .then((results) => {
-        return this.res.status(200).json({
-          expense: results,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    return this.res.status(200).json({
+      expense: results,
+    });
   }
 
   protected readParams() {
@@ -146,10 +129,10 @@ export default class ExpenseController extends BaseController {
       belongsTo: user!._id,
     };
 
-    const updatedExpense = await Expense.findByIdAndUpdate(
-      { _id: id },
-      expense
-    );
+    const updatedExpense = await updateExpenseById(id, expense);
+    if (!updatedExpense) {
+      return this.notFound("Expense with id " + id + " not found");
+    }
 
     const frequency = {
       frequencyType: params.frequencyType,
@@ -161,11 +144,17 @@ export default class ExpenseController extends BaseController {
       startEndMonth: params.startEndMonth,
     };
 
-    const updatedFrequency = await Frequency.findByIdAndUpdate(
-      { _id: updatedExpense?.frequency },
+    const updatedFrequency = await updateFrequencyForExpenseById(
+      updatedExpense,
       frequency
     );
-    this.ok({ expense: updatedExpense });
+    if (!updatedFrequency) {
+      return this.notFound(
+        "Frequency for expense with id " + id + " not found"
+      );
+    } else {
+      return this.ok({ expense: updatedExpense });
+    }
   }
 
   protected updateParams() {
@@ -194,17 +183,14 @@ export default class ExpenseController extends BaseController {
       return this.notAuthorized();
     }
 
-    Expense.findById({ _id: id })
-      .populate("frequency")
-      .then((expense) => {
-        console.log(expense);
-        return this.res.status(200).json({
-          expense: expense,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
+    const expense = await findExpenseById(id);
+    if (expense) {
+      return this.res.status(200).json({
+        expense: expense,
       });
+    } else {
+      return this.notFound("Expense with id " + id + " not found");
+    }
   }
 
   protected readOneParams() {
@@ -219,14 +205,14 @@ export default class ExpenseController extends BaseController {
     if (!hasPermission) {
       return this.notAuthorized("You are not authorized to delete an expense");
     }
-    const expense = await Expense.findOneAndDelete({ _id: id });
+    const expense = await deleteExpenseById(id);
     if (expense) {
       console.log(`Expense ${expense._id} deleted.`);
-      await Frequency.findOneAndDelete({ _id: expense.frequency });
+      await deleteFrequencyById(expense.frequency);
+      return this.ok({ expense });
     } else {
-      console.log(`No Expense with that ID`);
+      return this.notFound("Expense with id " + id + " not found");
     }
-    this.ok({ expense });
   }
 
   private destroyParams() {

@@ -1,10 +1,18 @@
 import BaseController, { IArgs } from "./BaseController";
 import bcrypt from "bcrypt";
-import User, { UserRoleEnum } from "../models/user";
-import Family from "../models/family";
-import Policy from "../models/policy";
+import { UserRoleEnum } from "../models/user";
 import Joi from "joi";
 import passport from "passport";
+import {
+  checkIfEmailExists,
+  createFamily,
+  saveUserWithPolicy,
+  findPolicyOfUser,
+  findUserById,
+  updateUser,
+  getFamilyUsers,
+  findFamilyById,
+} from "../DBAccessLayer";
 
 interface IUserArgs extends IArgs {}
 
@@ -16,12 +24,12 @@ export default class UserController extends BaseController {
   private async create() {
     const params = this.getParams();
     const email = params.email.trim().toLowerCase();
-    const exists = await User.exists({ email });
+    const exists = await checkIfEmailExists(email);
     if (exists) {
       return this.badRequest("User already exists!");
     }
 
-    const { savedUser } = await this.saveUserWithPolicy(
+    const { savedUser } = await saveUserWithPolicy(
       {
         name: params.name,
         email,
@@ -29,10 +37,7 @@ export default class UserController extends BaseController {
       },
       UserRoleEnum.ADMIN
     );
-    const family = new Family({
-      admin: savedUser._id,
-    });
-    const savedFamily = await family.save();
+    const savedFamily = await createFamily(savedUser._id);
     console.log(`User ${savedUser.name} created!`);
     this.ok({ user: savedUser, family: savedFamily });
   }
@@ -40,18 +45,18 @@ export default class UserController extends BaseController {
   private async createMember() {
     const params = this.getParams();
     const email = params.email.trim().toLowerCase();
-    const exists = await User.exists({ email });
+    const exists = await checkIfEmailExists(email);
     if (exists) {
       return this.badRequest("User already exists!");
     }
     const familyId = params.familyId;
-    const family = await Family.findOne({ familyId: familyId });
+    const family = await findFamilyById(familyId);
     if (!family) {
       console.log(`Family with id "${familyId}" does not exist!`);
       return this.notFound("Family not found!");
     }
 
-    const { savedUser } = await this.saveUserWithPolicy(
+    const { savedUser } = await saveUserWithPolicy(
       {
         name: params.name,
         email,
@@ -84,38 +89,6 @@ export default class UserController extends BaseController {
     });
   }
 
-  private async saveUserWithPolicy(
-    {
-      name,
-      email,
-      password,
-    }: {
-      name: string;
-      email: string;
-      password: string;
-    },
-    role: UserRoleEnum
-  ) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({
-      name: name.trim(),
-      email,
-      password: hashedPassword,
-      role: role,
-    });
-    const savedUser = await user.save();
-    const policy = new Policy({
-      belongsTo: savedUser._id,
-      permissions: this.getDefaultPermissions(),
-    });
-    await policy.save();
-    return { savedUser };
-  }
-
-  private getDefaultPermissions() {
-    return [];
-  }
-
   protected async read() {
     const family = await this.cu.getFamily();
     if (!family) {
@@ -127,18 +100,10 @@ export default class UserController extends BaseController {
       userIds.push({ _id: memberId });
     });
 
-    User.find({
-      $or: userIds,
-    })
-      .exec()
-      .then((results) => {
-        return this.res.status(200).json({
-          users: results,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    const results = await getFamilyUsers(userIds);
+    return this.res.status(200).json({
+      users: results,
+    });
   }
 
   private readParams() {
@@ -147,11 +112,11 @@ export default class UserController extends BaseController {
 
   private async readMember() {
     const { id } = this.req.params;
-    const user = await User.findById(id);
+    const user = await findUserById(id);
     if (!user) {
       return this.notFound("User not found");
     }
-    const policy = await Policy.findOne({ belongsTo: user._id });
+    const policy = await findPolicyOfUser(user._id);
     this.ok({ user, policy });
   }
 
@@ -192,28 +157,19 @@ export default class UserController extends BaseController {
       return this.notAuthorized();
     }
 
-
-    User.findByIdAndUpdate(
-      user._id,
-      {
-        name: params.name
-      },
-      { new: true }
-    )
-      .exec()
-      .then((results) => {
-        return this.res.status(200).json({
-          user: results,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
+    const results = await updateUser(user._id, { name: params.name });
+    if (!results) {
+      return this.notFound("Something went wrong");
+    } else {
+      return this.res.status(200).json({
+        user: results,
       });
+    }
   }
 
   protected updateParams() {
     return Joi.object({
-      name: Joi.string().required()
+      name: Joi.string().required(),
     });
   }
 
@@ -225,27 +181,17 @@ export default class UserController extends BaseController {
       return this.notAuthorized();
     }
 
-    if(await bcrypt.compare(params.oldPassword, user.password)) {
-
+    if (await bcrypt.compare(params.oldPassword, user.password)) {
       const hashedPassword = await bcrypt.hash(params.newPassword, 10);
-      User.findByIdAndUpdate(
-        user._id,
-        {
-          password: hashedPassword
-        },
-        { new: true }
-      )
-        .exec()
-        .then((results) => {
-          return this.res.status(200).json({
-            user: results,
-          });
-        })
-        .catch((error) => {
-          console.log(error);
+      const results = await updateUser(user._id, { password: hashedPassword });
+      if (!results) {
+        return this.notFound("Something went wrong");
+      } else {
+        return this.res.status(200).json({
+          user: results,
         });
-    }
-    else {
+      }
+    } else {
       console.log("Incorrect Password");
     }
   }

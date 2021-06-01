@@ -1,10 +1,9 @@
 import BaseController, { IArgs } from "./BaseController";
-import Income from "../models/income";
-import Expense from "../models/expense";
 import Joi from "joi";
 import { WeeklyStats } from "../lib/WeeklyStats";
 import { MonthlyStats } from "../lib/MonthlyStats";
 import { YearlyStats } from "../lib/YearlyStats";
+import { findFamilyExpenses, findFamilyIncomes } from "../DBAccessLayer";
 
 interface IStatsArgs extends IArgs {}
 
@@ -20,12 +19,17 @@ export default class StatsController extends BaseController {
       return this.notAuthorized();
     }
 
-    const incomes = await Income.find({ belongsTo: user.id })
-      .populate("frequency")
-      .exec();
-    const expenses = await Expense.find({ belongsTo: user.id })
-      .populate("frequency")
-      .exec();
+    const family = await this.cu.getFamily();
+    if (!family) {
+      return this.notAuthorized();
+    }
+    const memberIds = [family.admin];
+    family.members.forEach((memberId) => {
+      memberIds.push(memberId);
+    });
+
+    const incomes = await findFamilyIncomes(memberIds);
+    const expenses = await findFamilyExpenses(memberIds);
 
     let length =
       this.req.query.length && typeof this.req.query.length == "string"
@@ -45,12 +49,17 @@ export default class StatsController extends BaseController {
       return this.notAuthorized();
     }
 
-    const incomes = await Income.find({ belongsTo: user.id })
-      .populate("frequency")
-      .exec();
-    const expenses = await Expense.find({ belongsTo: user.id })
-      .populate("frequency")
-      .exec();
+    const family = await this.cu.getFamily();
+    if (!family) {
+      return this.notAuthorized();
+    }
+    const memberIds = [family.admin];
+    family.members.forEach((memberId) => {
+      memberIds.push(memberId);
+    });
+
+    const incomes = await findFamilyIncomes(memberIds);
+    const expenses = await findFamilyExpenses(memberIds);
 
     let monthlyStats = new MonthlyStats(incomes, expenses);
 
@@ -66,12 +75,17 @@ export default class StatsController extends BaseController {
       return this.notAuthorized();
     }
 
-    const incomes = await Income.find({ belongsTo: user.id })
-      .populate("frequency")
-      .exec();
-    const expenses = await Expense.find({ belongsTo: user.id })
-      .populate("frequency")
-      .exec();
+    const family = await this.cu.getFamily();
+    if (!family) {
+      return this.notAuthorized();
+    }
+    const memberIds = [family.admin];
+    family.members.forEach((memberId) => {
+      memberIds.push(memberId);
+    });
+
+    const incomes = await findFamilyIncomes(memberIds);
+    const expenses = await findFamilyExpenses(memberIds);
 
     let yearlyStats = new YearlyStats(incomes, expenses);
 
