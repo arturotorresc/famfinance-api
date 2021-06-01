@@ -1,9 +1,17 @@
 import BaseController, { IArgs } from "./BaseController";
-import Income from "../models/income";
-import Frequency from "../models/Frequency";
 import { AllowedActionsEnum } from "../models/policy";
 import { TransactionCategoryEnum } from "../types/transactionCategory.type";
 import Joi from "joi";
+import {
+  createIncome,
+  createFrequency,
+  updateIncomeById,
+  findIncomeById,
+  deleteIncomeById,
+  updateFrequencyForIncomeById,
+  deleteFrequencyById,
+  findFamilyIncomesByFamilyAndCategory,
+} from "../DBAccessLayer";
 
 interface IIncomeArgs extends IArgs {}
 
@@ -22,7 +30,7 @@ export default class IncomeController extends BaseController {
     }
     const user = this.cu.getUser();
 
-    const frequency = new Frequency({
+    const savedFrequency = await createFrequency({
       frequencyType: params.frequencyType,
       day: params.day,
       weekDay: params.weekDay,
@@ -32,9 +40,7 @@ export default class IncomeController extends BaseController {
       startEndMonth: params.startEndMonth,
     });
 
-    const savedFrequency = await frequency.save();
-
-    const income = new Income({
+    const savedIncome = await createIncome({
       title: params.title.trim(),
       from: params.from,
       until: params.until,
@@ -43,7 +49,6 @@ export default class IncomeController extends BaseController {
       frequency: savedFrequency._id,
       belongsTo: user!._id,
     });
-    const savedIncome = await income.save();
     this.ok({ income: savedIncome });
   }
 
@@ -68,7 +73,6 @@ export default class IncomeController extends BaseController {
 
   protected async read() {
     const user = this.cu.getUser();
-
     if (user === null) {
       return this.notAuthorized();
     }
@@ -79,39 +83,14 @@ export default class IncomeController extends BaseController {
       console.log("No family was found for this user!");
       return this.notFound();
     }
-    const belongsToArray = family.members.map((userId) => {
-      return Object.assign(
-        {},
-        {
-          belongsTo: userId,
-        },
-        params.category ? { category: params.category } : null
-      );
-    });
-    belongsToArray.push(
-      Object.assign(
-        {},
-        { belongsTo: family.admin },
-        params.category ? { category: params.category } : null
-      )
+    const results = await findFamilyIncomesByFamilyAndCategory(
+      params.id,
+      family,
+      params.category
     );
-    let query: any = {
-      $or: belongsToArray,
-    };
-    if (params.id) {
-      query = { $and: [{ _id: params.id }, { $or: belongsToArray }] };
-    }
-    Income.find(query)
-      .populate("frequency")
-      .exec()
-      .then((results) => {
-        return this.res.status(200).json({
-          income: results,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    return this.res.status(200).json({
+      income: results,
+    });
   }
 
   protected readParams() {
@@ -150,7 +129,10 @@ export default class IncomeController extends BaseController {
       belongsTo: user!._id,
     };
 
-    const updatedIncome = await Income.findByIdAndUpdate({ _id: id }, income);
+    const updatedIncome = await updateIncomeById(id, income);
+    if (!updatedIncome) {
+      return this.notFound("Income with id " + id + " not found");
+    }
 
     const frequency = {
       frequencyType: params.frequencyType,
@@ -162,11 +144,15 @@ export default class IncomeController extends BaseController {
       startEndMonth: params.startEndMonth,
     };
 
-    const updatedFrequency = await Frequency.findByIdAndUpdate(
-      { _id: updatedIncome?.frequency },
+    const updatedFrequency = await updateFrequencyForIncomeById(
+      updatedIncome,
       frequency
     );
-    this.ok({ income: updatedIncome });
+    if (!updatedFrequency) {
+      return this.notFound("Frequency for income with id " + id + " not found");
+    } else {
+      return this.ok({ income: updatedIncome });
+    }
   }
 
   protected updateParams() {
@@ -195,17 +181,14 @@ export default class IncomeController extends BaseController {
       return this.notAuthorized();
     }
 
-    Income.findById({ _id: id })
-      .populate("frequency")
-      .then((income) => {
-        console.log(income);
-        return this.res.status(200).json({
-          income: income,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
+    const income = await findIncomeById(id);
+    if (income) {
+      return this.res.status(200).json({
+        income: income,
       });
+    } else {
+      return this.notFound("Income with id " + id + " not found");
+    }
   }
 
   protected readOneParams() {
@@ -220,14 +203,14 @@ export default class IncomeController extends BaseController {
     if (!hasPermission) {
       return this.notAuthorized("You are not allowed to delete incomes");
     }
-    const income = await Income.findOneAndDelete({ _id: id });
+    const income = await deleteIncomeById(id);
     if (income) {
       console.log(`Income ${income._id} deleted.`);
-      await Frequency.findOneAndDelete({ _id: income.frequency });
+      await deleteFrequencyById(income.frequency);
+      return this.ok({ income });
     } else {
-      console.log(`No Income with that ID`);
+      return this.notFound("Income with id " + id + " not found");
     }
-    this.ok({ income });
   }
 
   private destroyParams() {

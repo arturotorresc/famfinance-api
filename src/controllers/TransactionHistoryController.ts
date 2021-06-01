@@ -1,10 +1,8 @@
 import BaseController, { IArgs } from "./BaseController";
 import Joi from "joi";
-import mongodb from "mongodb";
 import moment from "moment";
-import Expense from "../models/expense";
-import Income from "../models/income";
 import { TransactionGenerator } from "../lib/TransactionGenerator";
+import { findFamilyExpenses, findFamilyIncomes } from "../DBAccessLayer";
 
 export enum FrequencyType {
   OneTime = "Única ocasión",
@@ -33,13 +31,7 @@ export default class TransactionHistoryController extends BaseController {
     family.members.forEach((memberId) => {
       memberIds.push(memberId);
     });
-    const query: { belongsTo: mongodb.ObjectID }[] = [];
-    memberIds.forEach((id) => {
-      query.push({ belongsTo: id });
-    });
-    const expenses = await Expense.find({ $or: query })
-      .populate("frequency")
-      .exec();
+    const expenses = await findFamilyExpenses(memberIds);
     let history: TTransactionChartData = [];
     await Promise.all(
       expenses.map(async (e) => {
@@ -84,13 +76,7 @@ export default class TransactionHistoryController extends BaseController {
     family.members.forEach((memberId) => {
       memberIds.push(memberId);
     });
-    const query: { belongsTo: mongodb.ObjectID }[] = [];
-    memberIds.forEach((id) => {
-      query.push({ belongsTo: id });
-    });
-    const incomes = await Income.find({ $or: query })
-      .populate("frequency")
-      .exec();
+    const incomes = await findFamilyIncomes(memberIds);
     let history: TTransactionChartData = [];
     await Promise.all(
       incomes.map(async (i) => {

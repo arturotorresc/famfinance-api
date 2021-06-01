@@ -1,6 +1,11 @@
 import BaseController, { IArgs } from "./BaseController";
-import Goal from "../models/goal";
 import Joi from "joi";
+import {
+  createGoal,
+  deleteGoalById,
+  findFamilyGoals,
+  updateGoalById,
+} from "../DBAccessLayer";
 
 interface IGoalArgs extends IArgs {}
 
@@ -17,14 +22,13 @@ export default class GoalController extends BaseController {
       return this.notAuthorized();
     }
 
-    const goal = new Goal({
+    const savedGoal = await createGoal({
       title: params.title.trim(),
       description: params.description,
       deadline: params.deadline,
       qty: params.qty,
       belongsTo: user._id,
     });
-    const savedGoal = await goal.save();
 
     this.ok({ goal: savedGoal });
   }
@@ -44,16 +48,19 @@ export default class GoalController extends BaseController {
       return this.notAuthorized();
     }
 
-    Goal.find({ belongsTo: user.id })
-      .exec()
-      .then((results) => {
-        return this.res.status(200).json({
-          goal: results,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    const family = await this.cu.getFamily();
+    if (!family) {
+      return this.notAuthorized();
+    }
+    const memberIds = [family.admin];
+    family.members.forEach((memberId) => {
+      memberIds.push(memberId);
+    });
+
+    const results = await findFamilyGoals(memberIds);
+    return this.res.status(200).json({
+      goal: results,
+    });
   }
 
   protected readParams() {
@@ -68,25 +75,19 @@ export default class GoalController extends BaseController {
       return this.notAuthorized();
     }
 
-    Goal.findByIdAndUpdate(
-      params._id,
-      {
-        title: params.title.trim(),
-        description: params.description,
-        deadline: params.deadline,
-        qty: params.qty,
-      },
-      { new: true }
-    )
-      .exec()
-      .then((results) => {
-        return this.res.status(200).json({
-          updatedGoal: results,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
+    const results = await updateGoalById(params._id, {
+      title: params.title.trim(),
+      description: params.description,
+      deadline: params.deadline,
+      qty: params.qty,
+    });
+    if (!results) {
+      return this.notFound("Goal with id " + params._id + " not found");
+    } else {
+      return this.res.status(200).json({
+        updatedGoal: results,
       });
+    }
   }
 
   protected updateParams() {
@@ -107,16 +108,14 @@ export default class GoalController extends BaseController {
 
     const params = this.getParams();
 
-    Goal.findByIdAndDelete(params._id)
-      .exec()
-      .then((results) => {
-        return this.res.status(200).json({
-          deletedGoal: results,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
+    const results = await deleteGoalById(params._id);
+    if (!results) {
+      return this.notFound("Goal with id " + params._id + " not found");
+    } else {
+      return this.res.status(200).json({
+        deletedGoal: results,
       });
+    }
   }
 
   protected deleteParams() {

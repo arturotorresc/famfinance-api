@@ -7,7 +7,7 @@ const { Schema } = mongoose;
 /**
  * The available properties in the family model
  */
-interface IFamilyDocument extends mongoose.Document {
+export interface IFamilyDocument extends mongoose.Document {
   admin: mongodb.ObjectID;
   familyId: string;
   members: mongodb.ObjectID[];

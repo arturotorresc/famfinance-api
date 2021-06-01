@@ -3,7 +3,7 @@ import mongodb from "mongodb";
 
 const { Schema } = mongoose;
 
-interface IGoalDocument extends mongoose.Document {
+export interface IGoalDocument extends mongoose.Document {
   title: String,
   description: String,
   deadline: Date,
